@@ -74,7 +74,7 @@ def existe_estoque(depositos_fav, clusters_command, quantidade_pedido):
                        deposito mais próximo ao cliente
     :param clusters_command: DataFrame com cluster e quantidade desses clusters no pedido
     :param quantidade_pedido: DataFrame com marca e quantidade das bebidas pedidas
-    :return: condition
+    :return: depositos_fav: DataFrame de depositos favoritos atualizado com coluna sobre sua condição
     """
 
     #Criação de DataFrame para monitorar se há ou não estoque suficiente de cada bebida por depósito
@@ -101,17 +101,20 @@ def existe_estoque(depositos_fav, clusters_command, quantidade_pedido):
 
         for cluster,row in clusters_command.iterrows():
             if row['n_pedido'] > cdd_clusters.loc[cluster, 'n_estoque']:
-                df_bebidas.loc[id,'estoque'] = 'nao'
+                df_clusters.loc[id,'estoque'] = 'nao'
                 break
     
-    if df_bebidas[df_bebidas['estoque'] == 'nao'].empty:
-        condition = 'infull'
-    elif df_clusters[df_clusters['estoque'] == 'nao'].empty:
-        condition = 'partial'
-    else:
-        condition = 'none'
+    for id, row in depositos_fav.iterrows():
+        if df_bebidas.loc[id, 'estoque'] == 'sim':
+            depositos_fav[id,'condition'] = 'infull'
+        
+        elif df_clusters.loc[id, 'estoque'] == 'sim':
+            depositos_fav[id,'condition'] = 'partial'
+        
+        else:
+            depositos_fav = 'none'
     
-    return condition
+    return depositos_fav
 
 if __name__ == "__main__":
     #Calculo dos clusters presentes no pedido 
@@ -120,18 +123,22 @@ if __name__ == "__main__":
     #Estabelecimento do limite de preço para conseguirmos entregar ou não no dia D
     threshold = threshold(preco_total)
     
-    #Filtro de depositos elegíveis -> Se custo_frete < threshold
+    #Filtro de depositos elegíveis -> Se custo_frete < threshold e tempo de entrega pro dia D
     depositos_fav = depositos_prox[depositos_prox['custo_frete'] < threshold]
 
-    #Baseado nos depositos elegíveis por posição e custo, consultar se existe estoque nesses depósitos para 
-    # suprir a demanda
-    condition = existe_estoque(depositos_fav, clusters_command, quantidade_pedido)
+    #Acrescentada condição de cada deposito: 'infull', 'partial' ou 'none'
+    depositos_fav = existe_estoque(depositos_fav, clusters_command, quantidade_pedido)
 
-    if threshold > custo_frete and condition =='infull':
-        print("Entregaremos seu pedido em algumas horas")
+    #DataFrame reorganizado para ter uma ordem baseado no tempo de cada deposito para o cliente
+    depositos_fav.sort_values(by=['tempo_entrega'], axis=1, inplace=True)
+
+    if not depositos_fav[depositos_fav['condition'] == "infull"].empty:
+            print("Entregaremos seu pedido em algumas horas")
     
-    elif threshold > custo_frete and condition =='partial':
-        print("Temos 2 opções para você")
+    elif not depositos_fav[depositos_fav['condition'] == "partial"].empty:
+
+        print("Temos 2 opções para você: Uma misturamos as bebidas e entregamos hj e outra nao misturamos e \
+                entregamos amanhã")
     
-    elif threshold < custo_frete or condition =='none':
+    else :
         print("Entregaremos apenas amanhã, mas temos um desconto especial para você")
