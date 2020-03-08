@@ -1,6 +1,6 @@
 from pedido import prazo_pedido, quantidade_pedido, posicao_pedido
 from func_custo import depositos_prox
-from funcoes_db import cdds_dispo, cdd_bebidas, preco_total
+from funcoes_db import cdd_bebidas, cdd_clusters preco_total
 from cluster import clusters
 import pandas as pd
 
@@ -40,7 +40,7 @@ def cluster_pedido(clusters, quantidade_pedido):
     :param quantidade_pedido: DataFrame com tipo e quantidade de cada bebida da comanda
     :return: clusters_command: DataFrame com o nome do cluster e a quantidade de bebidas presentes do pedido
     """
-    cluster_command = pd.DataFrame(columns=['cluster', 'quantidade']
+    cluster_command = pd.DataFrame(columns=['cluster', 'quantidade'])
     clusters_command['cluster'] = clusters['cluster'].unique()
     clusters_command.set_index('cluster', inplace=True)
     
@@ -49,6 +49,7 @@ def cluster_pedido(clusters, quantidade_pedido):
         clusters_command[cluster] = total
 
     return clusters_command
+
 """
 def depositos_proximos(posicao_pedido, depositos):
      '''    
@@ -61,8 +62,8 @@ def depositos_proximos(posicao_pedido, depositos):
 
     return posicao_pedido
 """
-def existe_estoque(deposito, clusters_command, quantidade_pedido):
-     """    
+def existe_estoque(depositos_fav, clusters_command, quantidade_pedido):
+    """    
     Função que consulta o estoque dos armazens mais proximos e retorna a condição do estoque:
     1) infull = tem estoque para exatamento o que o cliente pediu
     2) partial = tem estoque parcial, ou seja, existem bebidas suficiente para o mesmo cluster, mas não
@@ -71,30 +72,37 @@ def existe_estoque(deposito, clusters_command, quantidade_pedido):
     
     :param deposito: dataframe com dados sobre quantidade presente para cada bebida e para cada cluster no
                        deposito mais próximo ao cliente
-    :param clusters_command: clusters de todas bebidas do pedido
-    :param quantidade_pedido: dicionário com quantidade e marca das bebidas pedidas
+    :param clusters_command: DataFrame com cluster e quantidade desses clusters no pedido
+    :param quantidade_pedido: DataFrame com marca e quantidade das bebidas pedidas
     :return: condition
     """
 
+    #Criação de DataFrame para monitorar se há ou não estoque suficiente de cada bebida por depósito
+    df_bebidas = pd.DataFrame([depositos_fav['ids'], depositos_fav['custo_frete']], columns=['ids','custo_frete']) 
+    df_bebidas.set_index('id', inplace=True)
 
-    #Criação de DataFrame para monitorar a quantidade de pedidos e a presenção ou não de estoque
-    df_bebidas = pd.DataFrame.from_dict(quantidade_pedido, orient='index', columns=['n_pedido'])
-    
-    df_clusters = pd.DataFrame.from_dict(clusters_command, orient='index', columns=['n_pedido'])
+    #Criação de DataFrame para monitorar se há ou não estoque suficiente de cada cluster por depósito
+    df_clusters = pd.DataFrame([depositos_fav['ids'], depositos_fav['custo_frete']], columns=['ids','custo_frete']) 
+    df_clusters.set_index('id', inplace=True)
 
     #Gera Dataframe com flag 'sim' ou 'nao' para presença suficiente de cada bebida no estoque
-    for bebida,row in df_bebidas.iterrows():
-        if row['n_pedido'] < deposito[bebida]:
-            df_bebidas.loc[bebida,'estoque'] = 'sim'
-        else:
-            df_bebidas.loc[bebida,'estoque'] = 'nao'
-    
-    #Gera Dataframe com flag 'sim' ou 'nao' para presença suficiente de cada cluster no estoque
-    for cluster,row in df_clusters.iterrows():
-        if row['n_pedido'] < deposito[clusters]:
-            df_clusters.loc[cluster,'estoque'] = 'sim'
-        else:
-            df_clusters.loc[cluster,'estoque'] = 'nao'
+    for id,row in df_bebidas.iterrows():
+        cdd_bebidas = cdd_bebidas(id) #DataFrame com estoque de bebidas naquele deposito
+        df_bebidas.loc[id, 'estoque'] = 'sim'
+
+        for bebida,row in quantidade_pedido.iterrows():
+            if row['n_pedido'] > cdd_bebidas.loc[bebida, 'n_estoque']:
+                df_bebidas.loc[id,'estoque'] = 'nao'
+                break
+        
+    for id,row in df_clusters.iterrows():
+        cdd_clusters = cdd_clusters(id) #DataFrame com estoque de clusters naquele deposito
+        df_clusters.loc[id, 'estoque'] = 'sim'
+
+        for cluster,row in clusters_command.iterrows():
+            if row['n_pedido'] > cdd_clusters.loc[cluster, 'n_estoque']:
+                df_bebidas.loc[id,'estoque'] = 'nao'
+                break
     
     if df_bebidas[df_bebidas['estoque'] == 'nao'].empty:
         condition = 'infull'
@@ -103,20 +111,21 @@ def existe_estoque(deposito, clusters_command, quantidade_pedido):
     else:
         condition = 'none'
     
-    return 
+    return condition
 
 if __name__ == "__main__":
     #Calculo dos clusters presentes no pedido 
     clusters_command = cluster_pedido(clusters, quantidade_pedido)
 
-    #Estabelecimento do limite para conseguirmos entregar ou não no dia D
-    threshold = threshold(quantidade_pedido, precos_bebidas)
+    #Estabelecimento do limite de preço para conseguirmos entregar ou não no dia D
+    threshold = threshold(preco_total)
     
-    
-    #Considerando que elegemos um depósito favorito
-    deposito_fav = favorite_deposito(depositos_prox)
+    #Filtro de depositos elegíveis -> Se custo_frete < threshold
+    depositos_fav = depositos_prox[depositos_prox['custo_frete'] < threshold]
 
-    condition = existe_estoque(deposito_fav, clusters_command, quantidade_pedido)
+    #Baseado nos depositos elegíveis por posição e custo, consultar se existe estoque nesses depósitos para 
+    # suprir a demanda
+    condition = existe_estoque(depositos_fav, clusters_command, quantidade_pedido)
 
     if threshold > custo_frete and condition =='infull':
         print("Entregaremos seu pedido em algumas horas")
