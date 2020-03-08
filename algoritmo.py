@@ -1,6 +1,6 @@
 from pedido import prazo_pedido, quantidade_pedido, posicao_pedido
 from func_custo import depositos_prox
-from funcoes_db import cdd_bebidas, cdd_clusters preco_total
+from functions_database import get_stock_per_drink, get_stock_per_clusters
 from cluster import clusters
 import pandas as pd
 
@@ -13,9 +13,9 @@ Legenda:
 - depositos_prox: Dataframe com id de cada deposito mais proximos(menos custosos) ao pedido, 
                   além do custo e tempo para chegar relativo a cada depósito
 
-- cdd_bebidas(id): Retorna o DataFrame com o número de cada bebida presente no estoque do cdd baseado no id
-- cdd_clusters(id): Retorna o DataFrame com o número de cada cluster presente no estoque do cdd baseado no id
-- preco_total(quantidade_pedido): Retorna o preço total da compra
+- get_stock_per_drink(id): Retorna o DataFrame com o número de cada bebida presente no estoque do cdd baseado no id
+- get_stock_per_clusters(id): Retorna o DataFrame com o número de cada cluster presente no estoque do cdd baseado no id
+
 
 """
 
@@ -87,20 +87,20 @@ def existe_estoque(depositos_fav, clusters_command, quantidade_pedido):
 
     #Gera Dataframe com flag 'sim' ou 'nao' para presença suficiente de cada bebida no estoque
     for id,row in df_bebidas.iterrows():
-        cdd_bebidas = cdd_bebidas(id) #DataFrame com estoque de bebidas naquele deposito
+        get_stock_per_drink = get_stock_per_drink(id) #DataFrame com estoque de bebidas naquele deposito
         df_bebidas.loc[id, 'estoque'] = 'sim'
 
         for bebida,row in quantidade_pedido.iterrows():
-            if row['n_pedido'] > cdd_bebidas.loc[bebida, 'n_estoque']:
+            if row['n_pedido'] > get_stock_per_drink.loc[bebida, 'n_estoque']:
                 df_bebidas.loc[id,'estoque'] = 'nao'
                 break
         
     for id,row in df_clusters.iterrows():
-        cdd_clusters = cdd_clusters(id) #DataFrame com estoque de clusters naquele deposito
+        get_stock_per_clusters = get_stock_per_clusters(id) #DataFrame com estoque de clusters naquele deposito
         df_clusters.loc[id, 'estoque'] = 'sim'
 
         for cluster,row in clusters_command.iterrows():
-            if row['n_pedido'] > cdd_clusters.loc[cluster, 'n_estoque']:
+            if row['n_pedido'] > get_stock_per_clusters.loc[cluster, 'n_estoque']:
                 df_clusters.loc[id,'estoque'] = 'nao'
                 break
     
@@ -121,6 +121,7 @@ if __name__ == "__main__":
     clusters_command = cluster_pedido(clusters, quantidade_pedido)
 
     #Estabelecimento do limite de preço para conseguirmos entregar ou não no dia D
+    preco_total = quantidade_pedido['preco'].sum()
     threshold = threshold(preco_total)
     
     #Filtro de depositos elegíveis -> Se custo_frete < threshold e tempo de entrega pro dia D
