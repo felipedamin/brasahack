@@ -15,6 +15,7 @@ Legenda:
                   depositos presentes nesse DataFrame fazem entrega em D+0
 
 
+
 - get_stock_per_drink(id): Retorna o DataFrame com o número de cada bebida presente no estoque do cdd baseado no id
 - get_stock_per_clusters(id): Retorna o DataFrame com o número de cada cluster presente no estoque do cdd baseado no id
 
@@ -23,7 +24,7 @@ Legenda:
 # Supondo clusters como, por exemplo, {bronze:[skol, brahma, antartica], prata:[bud, original, stella],
 #                                       ouro:[colorado, corona, leffe]}
 def cluster_pedido(clusters, quantidade_pedido):
-    """    
+    """
     Função para a separação das bebidas comandadas em clusters
 
     :param clusters: DataFrame de clusters de bebidas da Ambev
@@ -33,7 +34,7 @@ def cluster_pedido(clusters, quantidade_pedido):
     cluster_command = pd.DataFrame(columns=['cluster', 'quantidade'])
     clusters_command['cluster'] = clusters['cluster'].unique()
     clusters_command.set_index('cluster', inplace=True)
-    
+
     for cluster, row in cluster_command.iterrows():
         total = clusters[clusters['cluster'] == cluster].sum()
         clusters_command[cluster] = total
@@ -56,11 +57,11 @@ def existe_estoque(depositos_prox, clusters_command, quantidade_pedido):
     """
 
     #Criação de DataFrame para monitorar se há ou não estoque suficiente de cada bebida por depósito
-    df_bebidas = pd.DataFrame([depositos_prox['ids'], depositos_prox['custo_frete']], columns=['ids','custo_frete']) 
+    df_bebidas = pd.DataFrame([depositos_fav['ids'], depositos_prox['custo_frete']], columns=['ids','custo_frete']) 
     df_bebidas.set_index('id', inplace=True)
 
     #Criação de DataFrame para monitorar se há ou não estoque suficiente de cada cluster por depósito
-    df_clusters = pd.DataFrame([depositos_prox['ids'], depositos_prox['custo_frete']], columns=['ids','custo_frete']) 
+    df_clusters = pd.DataFrame([depositos_fav['ids'], depositos_prox['custo_frete']], columns=['ids','custo_frete']) 
     df_clusters.set_index('id', inplace=True)
 
     #Gera Dataframe com flag 'sim' ou 'nao' para presença suficiente de cada bebida no estoque
@@ -72,7 +73,7 @@ def existe_estoque(depositos_prox, clusters_command, quantidade_pedido):
             if row['n_pedido'] > get_stock_per_drink.loc[bebida, 'n_estoque']:
                 df_bebidas.loc[id,'estoque'] = 'nao'
                 break
-        
+
     for id,row in df_clusters.iterrows():
         get_stock_per_clusters = get_stock_per_clusters(id) #DataFrame com estoque de clusters naquele deposito
         df_clusters.loc[id, 'estoque'] = 'sim'
@@ -106,11 +107,11 @@ def combine_stocks(ranking_depositos, quantidade_pedidos):
     stock_1 = get_stock_per_drink(id_1) #DataFrame com estoque de bebidas do maior deposito
     stock_2 = get_stock_per_drink(id_2) #DataFrame com estoque de bebidas do segundo maior deposito
 
-    condition = true
+    condition = True
 
     for bebida,row in quantidade_pedido.iterrows():
         if row['n_pedido'] > stock_1.loc[bebida, "quantidade"] + stock_2.loc[bebida, "quantidade"]:
-            condition = false
+            condition = False
             break
     
     #Verificação para saber se o tempo de entrega combinado é menor do que 1 dia(tempo em minutos)
@@ -119,9 +120,8 @@ def combine_stocks(ranking_depositos, quantidade_pedidos):
 
     return condition
 
-
 if __name__ == "__main__":
-    #Calculo dos clusters presentes no pedido 
+    #Calculo dos clusters presentes no pedido
     clusters_command = cluster_pedido(clusters, quantidade_pedido)
 
     #Estabelecimento do limite de preço para conseguirmos entregar ou não no dia D
@@ -132,7 +132,6 @@ if __name__ == "__main__":
     for id in depositos_prox["id"]:
         ranking_depositos = ranking_depositos.append[{"id":id, "n_estoque":total_estoque(id)}, ignore_index=True] 
     ranking_depositos.sort_values(by=["n_estoque"], inplace=True)
-
 
     #Acrescentada condição de cada deposito: 'infull', 'partial' ou 'none'
     depositos_prox = existe_estoque(depositos_prox, clusters_command, quantidade_pedido)
