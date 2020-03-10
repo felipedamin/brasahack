@@ -35,19 +35,23 @@ class deliveries:
 
         ## distance in kilometers
         self.cdds = self.cdds.assign(distance=c*6367)
-        self.calculateFrete()
+        price = self.calculateFrete()
+        return price
 
     def calculateFrete(self):
         price = self.cdds['distance'] * 10
         self.cdds = self.cdds.assign(price=price)
         print(self.cdds)
 
-    ## devolve as opçoes
-    ## a opçao aceita é adicionada em "self.delivery[time]"
-
+        # devolve a opçao mais barata
+        return self.cdds.loc[self.cdds['price'].idxmin()]
 
 def mainTest():
     deliv = deliveries()
-    print(deliv.calculateDistances(-23.612273, -46.665155))
+    bestDelivery = deliv.calculateDistances(-23.6, -46.6)
+
+    ## a opçao aceita é adicionada em "self.delivery[time]"
+    deliv.addDelivery('manha', bestDelivery.price, -23.6, -46.6)
+    print(deliv.delivery)
 
 mainTest()
