@@ -76,9 +76,11 @@ def get_stock_per_drink(cdd_id):
     :param None
     :return [DataFrame] no formato ['drink_id', 'quantity']
     """
-    query_cdd = "select cdd_id, quantity, drink_id from cdd_stock where cdd_id = %s order by drink_id"
+    query_cdd = """select cdd_id, quantity, drink_id, dr.name as drink_name, dr.cluster as cluster from cdd_stock cdd
+                inner join drinks dr on dr.id = cdd.drink_id
+                where cdd_id = %s order by drink_id"""
     df_per_drink = pd.read_sql_query(query_cdd, conn, params = [cdd_id])
-    return df_per_drink[['drink_id', 'quantity']]
+    return df_per_drink[['drink_id', 'quantity', 'drink_name', 'cluster']]
 
 def get_stock_per_cluster(cdd_id):
     """
@@ -96,4 +98,4 @@ def get_stock_per_cluster(cdd_id):
     return df_per_cluster[['cluster', 'quantity']]
 
 if __name__=='__main__':
-    print(get_order(1))
+    print(get_stock_per_drink(1))
