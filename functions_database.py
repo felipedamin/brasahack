@@ -6,7 +6,7 @@ from config import HOST, \
                 PASSWORD, \
                 USER
 
-conn = psycopg2.connect(host=HOST,database=DATABASE, user=USER, password=PASSWORD)
+conn = psycopg2.connect(host=HOST,database=DATABASE, user="danieldacosta", password=PASSWORD)
 
 """
 Nesse script estão contidas as funções que requerem conexao diretas ao banco de dados
