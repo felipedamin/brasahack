@@ -1,0 +1,25 @@
+footer {
+    clear: both;
+    left: 0;
+    bottom: 0;
+    background-color: #F8F8F8;
+    border-top: 1px solid #E7E7E7;
+    text-align: center;
+    padding: 10px;
+    position: fixed;
+    width: 100%;
+    z-index: 1677727;
+}
+
+.blank-space{
+    margin-bottom: 100px;
+}
+
+body{
+
+    margin-bottom:200px !important;
+}
+html {
+    overflow-y: scroll;
+}
+
