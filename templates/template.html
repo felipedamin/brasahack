@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="full-height">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Marli System</title>
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/external/all.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/external/bootstrap.min.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/external/mdb.min.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/external/style.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/loader.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/footer.css')}}">
+
+    {% block styles %}
+    {% endblock %}
+</head>
+<body>
+<header>
+
+    <nav class="navbar navbar-expand-lg navbar-dark black">
+        <div class="container">
+            <img class="navbar-brand" src="{{url_for('static', filename='img/logo.png')}}" alt="Logo Sistema"
+                 width="40" height="40">
+
+            <button class="navbar-toggler" type="button" data-toggle="collapse"
+                    data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+
+                    <li class="nav-item active">
+
+                        <a class="nav-link" href="/menuPrincipal"><span class="fas fa-home"> </span></a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/cadastroPessoaFisica"><span class="fas fa-users"> </span></a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/cadastroPessoaJuridica"><span class="far fa-building"> </span></a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/listarPessoasFisicas"><span class="fas fa-search"> </span></a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/listarPessoasJuridicas"><span class="fas fa-list-ul"> </span></a>
+                    </li>
+                     <li class="nav-item active">
+                        <a class="nav-link" href="/cadastroVeiculos"><span class="fas fa-car"></span></a>
+                    </li>
+                     <li class="nav-item active">
+                        <a class="nav-link" href="/notas"><span class="far fa-comment"></span></a>
+                    </li>
+
+                </ul>
+
+            </div>
+        </div>
+    </nav>
+
+    <div class="view intro-2">
+        <div class="full-bg-img">
+            <div class="mask rgba-black-strong flex-center">
+                <div class="container">
+                    <div class="white-text text-center wow fadeInUp">
+                        <h2>Sistema de Gestão OWL</h2>
+                        <h5>Aqui estão dispostas varias opções para gerenciar seu negócio</h5>
+                        <br>
+                        <p>Dentre as opções você pode inserir, editar e excluir clientes além de ter uma visão
+                            <br>ampla do seu negócio auxiliando na tomada de decisões.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</header>
+
+<div class="container">
+    {% block conteudo %}{% endblock %}
+</div>
+
+{% include "loader.html" %}
+
+<!-- SCRIPTS -->
+<script src="{{url_for('static', filename='js/external/jquery-3.4.1.min.js')}}"></script>
+<script src="{{url_for('static', filename='js/external/popper.min.js')}}"></script>
+<script src="{{url_for('static', filename='js/external/bootstrap.min.js')}}"></script>
+<script src="{{url_for('static', filename='js/external/mdb.min.js')}}"></script>
+
+</body>
+
+<!-- Footer -->
+<footer class="page-footer font-small black">
+
+    <!-- Copyright -->
+    <div class="footer-copyright text-center py-3">Desenvolvido por DevMoon:
+        <a> devmooncompany@gmail.com </a>
+    </div>
+    <!-- Copyright -->
+
+</footer>
+<!-- Footer -->
+
+
+{% block script %}
+{% endblock %}
+</html>
