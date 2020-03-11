@@ -1,8 +1,9 @@
-from pedido import prazo_pedido, quantidade_pedido, posicao_pedido
-from func_custo import depositos_prox
-from functions_database import get_stock_per_drink, get_stock_per_clusters, total_estoque
-from cluster import clusters
+#from pedido import prazo_pedido, quantidade_pedido, posicao_pedido
+#from func_custo import depositos_prox
+from functions_database import get_stock_per_drink, get_stock_per_cluster, get_stock_total, get_clusters
+#from cluster import clusters
 import pandas as pd
+import pdb
 
 """
 Legenda:
@@ -17,7 +18,7 @@ Legenda:
 
 
 - get_stock_per_drink(id): Retorna o DataFrame com o número de cada bebida presente no estoque do cdd baseado no id
-- get_stock_per_clusters(id): Retorna o DataFrame com o número de cada cluster presente no estoque do cdd baseado no id
+- get_stock_per_cluster(id): Retorna o DataFrame com o número de cada cluster presente no estoque do cdd baseado no id
 
 """
 
@@ -31,14 +32,17 @@ def cluster_pedido(clusters, quantidade_pedido):
     :param quantidade_pedido: DataFrame com tipo e quantidade de cada bebida da comanda
     :return: clusters_command: DataFrame com o nome do cluster e a quantidade de bebidas presentes do pedido
     """
-    cluster_command = pd.DataFrame(columns=['cluster', 'quantidade'])
+    clusters_command = pd.DataFrame(columns=['cluster', 'quantidade'])
     clusters_command['cluster'] = clusters['cluster'].unique()
+    clusters_command.fillna(0, inplace=True)
     clusters_command.set_index('cluster', inplace=True)
 
-    for cluster, row in cluster_command.iterrows():
-        total = clusters[clusters['cluster'] == cluster].sum()
-        clusters_command[cluster] = total
-
+    for cluster, row in clusters.iterrows():
+        names = clusters.loc[cluster, "name"]
+        this_cluster = quantidade_pedido[quantidade_pedido.index.isin(names) == True]
+        total = this_cluster["quantidade"].sum()
+        clusters_command.loc[cluster, "quantidade"] = total
+    
     return clusters_command
 
 def existe_estoque(depositos_prox, clusters_command, quantidade_pedido):
@@ -57,42 +61,45 @@ def existe_estoque(depositos_prox, clusters_command, quantidade_pedido):
     """
 
     #Criação de DataFrame para monitorar se há ou não estoque suficiente de cada bebida por depósito
-    df_bebidas = pd.DataFrame([depositos_fav['ids'], depositos_prox['custo_frete']], columns=['ids','custo_frete']) 
+    df_bebidas = pd.DataFrame({'id':depositos_prox.index,'custo_frete':depositos_prox['custo_frete']}, columns=['id','custo_frete']) 
     df_bebidas.set_index('id', inplace=True)
 
     #Criação de DataFrame para monitorar se há ou não estoque suficiente de cada cluster por depósito
-    df_clusters = pd.DataFrame([depositos_fav['ids'], depositos_prox['custo_frete']], columns=['ids','custo_frete']) 
+    df_clusters = pd.DataFrame({'id':depositos_prox.index, 'custo_frete':depositos_prox['custo_frete']}, 
+                                columns=['id','custo_frete']) 
     df_clusters.set_index('id', inplace=True)
 
     #Gera Dataframe com flag 'sim' ou 'nao' para presença suficiente de cada bebida no estoque
     for id,row in df_bebidas.iterrows():
-        get_stock_per_drink = get_stock_per_drink(id) #DataFrame com estoque de bebidas naquele deposito
+        stock_drinks = get_stock_per_drink(id) #DataFrame com estoque de bebidas naquele deposito
+        stock_drinks.set_index(["drink_name"], inplace=True)
         df_bebidas.loc[id, 'estoque'] = 'sim'
 
         for bebida,row in quantidade_pedido.iterrows():
-            if row['n_pedido'] > get_stock_per_drink.loc[bebida, 'n_estoque']:
+            if row['quantidade'] > stock_drinks.loc[bebida, 'quantity']:
                 df_bebidas.loc[id,'estoque'] = 'nao'
                 break
 
     for id,row in df_clusters.iterrows():
-        get_stock_per_clusters = get_stock_per_clusters(id) #DataFrame com estoque de clusters naquele deposito
+        stock_clusters = get_stock_per_cluster(id) #DataFrame com estoque de clusters naquele deposito
+        stock_clusters.set_index(["cluster"], inplace=True)
         df_clusters.loc[id, 'estoque'] = 'sim'
 
         for cluster,row in clusters_command.iterrows():
-            if row['n_pedido'] > get_stock_per_clusters.loc[cluster, 'n_estoque']:
+            
+            if row['quantidade'] > stock_clusters.loc[cluster, 'quantity']:
                 df_clusters.loc[id,'estoque'] = 'nao'
                 break
-    
+
     for id, row in depositos_prox.iterrows():
         if df_bebidas.loc[id, 'estoque'] == 'sim':
-            depositos_prox[id,'condition'] = 'infull'
+            depositos_prox.loc[id,'condition'] = 'infull'
         
         elif df_clusters.loc[id, 'estoque'] == 'sim':
-            depositos_prox[id,'condition'] = 'partial'
+            depositos_prox.loc[id,'condition'] = 'partial'
         
         else:
-            depositos_prox = 'none'
-    
+            depositos_prox.loc[id,'condition'] = 'none'
     return depositos_prox
 
 def combine_stocks(ranking_depositos, quantidade_pedidos):
@@ -102,43 +109,60 @@ def combine_stocks(ranking_depositos, quantidade_pedidos):
     :param quantidade_pedido: DataFrame com marca e quantidade das bebidas pedidas
     :return: condition: Flag com True ou False baseado na existência ou não de depósito suficiente 
     """
-    id_1 = ranking_depositos.iloc[0,"id"]
-    id_2 = ranking_depositos.iloc[1,"id"]
+    
+    id_1 = ranking_depositos.loc[0,"id"]
+    id_2 = ranking_depositos.loc[1,"id"]
     stock_1 = get_stock_per_drink(id_1) #DataFrame com estoque de bebidas do maior deposito
+    stock_1.set_index("drink_name", inplace=True)
     stock_2 = get_stock_per_drink(id_2) #DataFrame com estoque de bebidas do segundo maior deposito
+    stock_2.set_index("drink_name", inplace=True)
 
     condition = True
 
+    #pdb.set_trace()
     for bebida,row in quantidade_pedido.iterrows():
-        if row['n_pedido'] > stock_1.loc[bebida, "quantidade"] + stock_2.loc[bebida, "quantidade"]:
+        if row['quantidade'] > stock_1.loc[bebida, "quantity"] + stock_2.loc[bebida, "quantity"]:
             condition = False
             break
     
     #Verificação para saber se o tempo de entrega combinado é menor do que 1 dia(tempo em minutos)
-    if depositos_prox[id_1, "tempo_de_entrega"] + depositos_prox[id_2, "tempo_de_entrega"] > 1440:
+    if depositos_prox.loc[id_1, "tempo_entrega"] + depositos_prox.loc[id_2, "tempo_entrega"] > 1440:
         condition = False
 
     return condition
 
 if __name__ == "__main__":
+    quantidade_pedido = pd.DataFrame({"bebida":['Antarctica Originial', "Budweiser", "Guarana Antarctica", 
+    "Energetico Fusion Normal", "Energetico Fusion Pessego"], "quantidade":[10, 5, 30, 12, 21]})
+    quantidade_pedido.set_index(["bebida"], inplace=True)
+
+    depositos_prox = pd.DataFrame({"id":[1, 2, 3, 4], "custo_frete":[100, 150, 70, 230], 
+                                    "tempo_entrega":[10, 15, 7, 23]}) #Se o custo for referente ao tempo 
+    depositos_prox.set_index(["id"], inplace=True)
+    #depositos_prox.set_index(["id"], inplace=True)
+    
+    
     #Calculo dos clusters presentes no pedido
+    clusters = get_clusters()
     clusters_command = cluster_pedido(clusters, quantidade_pedido)
 
     #Estabelecimento do limite de preço para conseguirmos entregar ou não no dia D
-    preco_total = quantidade_pedido['preco'].sum()
+    #preco_total = quantidade_pedido['preco'].sum()
 
     #DataFrame que rankeia depositos baseado no total de estoque presente
-    ranking_depositos = pd.DataFrame(colums={"id", "n_estoque"})
-    for id in depositos_prox["id"]:
-        ranking_depositos = ranking_depositos.append[{"id":id, "n_estoque":total_estoque(id)}, ignore_index=True] 
-    ranking_depositos.sort_values(by=["n_estoque"], inplace=True)
+    ranking_depositos = pd.DataFrame(columns={"id", "n_estoque"})
+    for id in depositos_prox.index:
+        ranking_depositos = ranking_depositos.append({"id":id, "n_estoque":get_stock_total(id)}, ignore_index=True) 
+        
+    ranking_depositos.sort_values(by=["n_estoque"], inplace=True, ascending=False, ignore_index=True)
 
     #Acrescentada condição de cada deposito: 'infull', 'partial' ou 'none'
     depositos_prox = existe_estoque(depositos_prox, clusters_command, quantidade_pedido)
-
+    
     #DataFrame reorganizado para ter uma ordem baseado no tempo de cada deposito para o cliente
-    depositos_prox.sort_values(by=['tempo_entrega'], axis=1, inplace=True)
+    depositos_prox.sort_values(by=['tempo_entrega'], axis=0, inplace=True)
 
+    
     if not depositos_prox[depositos_prox['condition'] == "infull"].empty:
         print("Entregaremos seu pedido em algumas horas")
     
@@ -151,3 +175,8 @@ if __name__ == "__main__":
             print("Podemos misturar as opções?")
     else :
         print("Entregaremos apenas amanhã, mas temos um desconto especial para você")
+
+#Pegar bebidas mais baratas entre as disponíveis
+#Colocar preço de produto mais frete no retorno ao cliente
+#Precisa popular mais o dataframe pois só tem 4 stocks
+#Consertar o "Originial"
