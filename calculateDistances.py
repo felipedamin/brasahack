@@ -24,7 +24,7 @@ class deliveries:
         return True
 
     ## começa calculando as distancias
-    def calculateDistances(self, lat, lon):
+    def calculateDistances(self, lat, lon, n):
         degreeToRad = float(np.pi / 180.0)
         deltaLat = (self.cdds['lat'] - lat) * degreeToRad
         deltaLon = (self.cdds['lon'] - lon) * degreeToRad
@@ -35,27 +35,25 @@ class deliveries:
 
         ## distance in kilometers
         self.cdds = self.cdds.assign(distance=c*6367)
-        price = self.calculateFrete()
+        price = self.calculateFrete(n)
         return price
 
-    def calculateFrete(self):
+    def calculateFrete(self, n):
         price = round(self.cdds['distance'] * 10, 2)
         self.cdds = self.cdds.assign(price=price)
-
+        self.cdds.sort_values(by=['price'], inplace=True, ascending=True)
         # devolve a opçao mais barata
-        return self.cdds.loc[self.cdds['price'].idxmin()]
+        #return self.cdds.loc[self.cdds['price'].idxmin()]
+        return self.cdds.head(n)
 
 def mainTest():
     deliv = deliveries()
-    bestDelivery = deliv.calculateDistances(-23.6, -46.6)
+    bestDelivery = deliv.calculateDistances(-23.6, -46.6, 3)
     print(bestDelivery)
     print('\n')
     
     ## a opçao aceita é adicionada em "self.delivery[time]"
-    deliv.addDelivery('10am', bestDelivery['price'], -23.6, -46.6, bestDelivery['name'])
-    deliv.addDelivery('11am', bestDelivery['price'], -23.6, -46.6, bestDelivery['name'])
-    deliv.addDelivery('12am', bestDelivery['price'], -23.6, -46.6, bestDelivery['name'])
-
-    print(deliv.delivery)
+    #deliv.addDelivery('10am', bestDelivery['price'], -23.6, -46.6, bestDelivery['name'])
+    #print(deliv.delivery)
 
 mainTest()
