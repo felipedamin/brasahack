@@ -12,7 +12,7 @@ class deliveries:
     '''
     Recebe um pedido:
         (lat, lon)
-    deve retornar: 
+    deve retornar:
         DataFrame com [id_deposito, custo_entrega, tempo_entrega]
     '''
 
@@ -29,7 +29,7 @@ class deliveries:
         deltaLat = (self.cdds['lat'] - lat) * degreeToRad
         deltaLon = (self.cdds['lon'] - lon) * degreeToRad
 
-        
+
         aux = np.sin(deltaLat/2)**2 + np.cos(lat*degreeToRad) * np.cos(self.cdds['lat'] * degreeToRad) * (np.sin(deltaLon/2))**2
         c = 2 * np.arctan2(np.sqrt(aux), np.sqrt(1 - aux))
 
@@ -51,9 +51,9 @@ def mainTest():
     bestDelivery = deliv.calculateDistances(-23.6, -46.6, 3)
     print(bestDelivery)
     print('\n')
-    
+
     ## a opçao aceita é adicionada em "self.delivery[time]"
     #deliv.addDelivery('10am', bestDelivery['price'], -23.6, -46.6, bestDelivery['name'])
     #print(deliv.delivery)
 
-mainTest()
+# mainTest()

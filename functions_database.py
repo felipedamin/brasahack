@@ -13,6 +13,16 @@ Nesse script estão contidas as funções que requerem conexao diretas ao banco 
 
 """
 
+def get_customer_info(customer_id):
+    """
+    Função para retornar as informações do cliente que está fazendo o pedido
+    :param customer_id: id do cliente
+    :return  [DataFrame] with columns [name, lat, lon]
+    """
+    query_customer = "select * from customers where id = %s"
+    customers = pd.read_sql_query(query_customer, conn, params = [customer_id])
+    return customers[['name', 'lat', 'lon']]
+
 def get_order(customer_id, order_id = 1):
     """
     Função para retornar um determinado pedido de um determinado clinte
@@ -96,6 +106,6 @@ def get_stock_per_cluster(cdd_id):
                     order by dr.cluster"""
     df_per_cluster = pd.read_sql_query(query_cdd, conn, params = [cdd_id])
     return df_per_cluster[['cluster', 'quantity']]
-
-if __name__=='__main__':
-    print(get_clusters())
+    
+# if __name__=='__main__':
+    # print(get_customer_info(1))
