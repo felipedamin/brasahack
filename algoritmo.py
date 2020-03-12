@@ -12,7 +12,7 @@ Legenda:
 - quantidade_pedido: Dataframe com index sendo a bebida e uma coluna sendo a quantidade referente a cada bebida
 - posicao_pedido: longitude e latitude do cliente
 
-- depositos_prox: Dataframe com id de cada deposito mais proximos(menos custosos) ao pedido, 
+- depositos_prox: Dataframe com id de cada deposito mais proximos(menos custosos) ao pedido,
                   além do custo e tempo para chegar relativo a cada depósito. Consideramos que todos os
                   depositos presentes nesse DataFrame fazem entrega em D+0
 
@@ -34,6 +34,7 @@ def order_cluster(clusters, order):
     :return: clusters_command: DataFrame com o nome do cluster e a quantidade de bebidas presentes do pedido
     """
 
+
     for cluster,row in clusters.iterrows():
         names = clusters.loc[cluster,"name"]
         order.loc[order.index.isin(names),"cluster"] = cluster
@@ -49,19 +50,21 @@ def exist_stock(depo_close, clusters_command, order):
     2) partial = tem estoque parcial, ou seja, existem bebidas suficiente para o mesmo cluster, mas não
         exatamente o que o cliente pediu
     3) none = não há estoque suficiente para o pedido
-    
+
     :param deposito_fav: dataframe com dados sobre quantidade presente para cada bebida e para cada cluster no
                        deposito mais próximo ao cliente
     :param clusters_command: DataFrame com cluster e quantidade desses clusters no pedido
     :param quantidade_pedido: DataFrame com marca e quantidade das bebidas pedidas
     :return: depositos_prox: DataFrame de depositos favoritos atualizado com coluna sobre sua condição
     """
+
   
     for id,row_depo in depo_close.iterrows():
         stock_drinks = get_stock_per_drink(id)
         stock_drinks.set_index(["drink_name"], inplace=True)
         stock_clusters = get_stock_per_cluster(id)
         stock_clusters.set_index(["cluster"], inplace=True)
+
         depo_close.loc[id, "condition"] = "infull"
         for drink,row_order in order.iterrows():
             if row_order["quantity"] > stock_drinks.loc[drink, 'quantity']:
@@ -79,8 +82,9 @@ def combine_depo(depo_ranking, order):
     Função que verifica se os dois maiores depósitos combinados tem estoque suficiente para atender ao pedido
     :param ranking_depositos: DataFrame de depósitos baseado no estoque presente
     :param quantidade_pedido: DataFrame com marca e quantidade das bebidas pedidas
-    :return: condition: Flag com True ou False baseado na existência ou não de depósito suficiente 
+    :return: condition: Flag com True ou False baseado na existência ou não de depósito suficiente
     """
+
     ids = depo_ranking.index
     
     id_1 = int(ids[0])
@@ -177,6 +181,7 @@ def bussola(order): #lat e lon
     # Acrescentada condição de cada deposito: 'infull', 'partial' ou 'none'
     depo_close = exist_stock(depo_close, clusters_command, order)
 
+
     # DataFrame reorganizado para ter uma ordem baseado no custo de cada deposito para o cliente
     depo_close.sort_values(by=['price'], axis=0, inplace=True)
     
@@ -202,12 +207,14 @@ def bussola(order): #lat e lon
     else:
         print("Entregaremos apenas amanhã, mas temos um desconto especial para você")
 
+
 if __name__ == "__main__":
     order = pd.DataFrame({"drink":['Antarctica Originial', "Budweiser", "Guarana Antarctica", 
     "Energetico Fusion Normal", "Energetico Fusion Pessego"], "quantity":[100, 50, 300, 120, 210]})
     order.set_index(["drink"], inplace=True)
     
     bussola(order)
+
 
 
 #Pegar bebidas mais baratas entre as disponíveis
