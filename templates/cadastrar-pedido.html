@@ -1,11 +1,11 @@
 {% extends "template.html" %}
 
 {% block script %}
-<script src="{{ url_for('static', filename='js/cadastro-pedido.js') }}"></script>
+<script src="{{ url_for('static', filename='js/cadastrar-pedido.js') }}"></script>
 {% endblock %}
 
 {% block styles %}
-<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/cadastro-pedido.css')}}">
+<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/cadastrar-pedido.css')}}">
 {% endblock %}
 
 
@@ -20,30 +20,26 @@
                     <h3 class="contact-page__page-title"></h3>
                     <div role="form" class="wpcf7" id="wpcf7-f2218-p371-o1" lang="pt-BR" dir="ltr">
                         <div class="screen-reader-response"></div>
-                        <form method="post" class="" submit="">
+                        <form method="post" class="cadastrar-pedido">
                             <div class="field">
-                                <label for="nome" class="field__label">Nome</label>
+                                <label for="nome" class="field__label">Nome</label> 
                                 <span class="wpcf7-form-control-wrap nome">
                                     <input type="text" name="nome" value="" size="40" td-type="name" id="nome"
-                                        aria-required="true" aria-invalid="false" placeholder="Digite o seu nome completo">
+                                        aria-required="true" aria-invalid="false" placeholder="Digite o seu nome completo" required>
                                     </span>
                                 </div>
                             <div class="field"> <label for="email" class="field__label">E-mail</label>
                                 <span class="wpcf7-form-control-wrap email">
                                     <input type="email" name="email" value="" size="40" id="email" aria-required="true"
-                                        aria-invalid="false" placeholder="Digite o seu email de contato">
+                                        aria-invalid="false" placeholder="Digite o seu email de contato" required>
                                 </span>
                             </div>
                             <div class="row d-flex" style="justify-content: space-around;">
-                                <!-- FOR NO JINJA PARA IMPRIMIR AS BEBIDAS-->
                                 {% for drink, price in dict_bebidas.items() %}
                                 <div class="col-3 m-3" style="border-radius: 1000px;border: double;border-color: #ffbb287d;">
                                     <div class="field pb-0">
                                         <label for="produto_{{drink}}" class="field__label" style="text-align-last: center;">{{drink}}</label>
                                         <span class="wpcf7-form-control-wrap produto_{{drink}} d-flex justify-content-center">
-                                            <!-- <input type="text" name="produto_{{drink}}" value="" size="40"
-                                                id="produto_{{drink}}" aria-required="true" aria-invalid="false"
-                                                placeholder="{{drink}}" maxlength="10"> -->
                                             <img  style="" src="/static/img/{{drink}}.png" alt=""
                                                  height="150" href="/">
                                         </span>
@@ -58,15 +54,14 @@
                                     </div>
                                 </div>
                                 {% endfor %}
-                                <!-- ENDFOR -->
-                            </div>
-                            <div class="fields">
-                                <div class="field"> <label class="field__label"></label>
-                                    <input type="submit" value="Enviar" class="submit">
-                                    <span class="ajax-loader"></span>
-                                </div>
                             </div>
                         </form>
+                        <div class="fields">
+                            <div class="field"> <label class="field__label"></label>
+                                <input type="submit" value="Enviar" class="submit" onclick="calcularPedido()">
+                                <span class="ajax-loader"></span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -74,5 +69,22 @@
     </div>
     <hr>
 </div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered text-center" role="document">
+    <div class="modal-content" style="background: linear-gradient(to bottom, #ffc72c 0%, #ff992c 100%); border-radius: 100px;">
+      <div class="modal-body">
+      </div>
+      <div class="modal-footer d-flex justify-content-center" style="border-top:0;">
+        <div class="age-gate-dialog__buttons-holder">
+            <button class="age-gate-dialog__answer-button" data-dismiss="modal">Não</button>
+            <button class="age-gate-dialog__answer-button" type="submit" value="1" onclick="confirmarPedido()">Sim</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 {% endblock %}
