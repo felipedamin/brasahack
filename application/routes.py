@@ -81,5 +81,6 @@ def pedido():
         "entrega2": "Hoje",
         "pedido2": dict_pedido,
     }
-    return jsonify(dict_pedidos), 200
+    dict_pedidos=bussola(order)
 
+    return jsonify(dict_pedidos), 200
