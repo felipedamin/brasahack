@@ -27,10 +27,14 @@ function calcularPedido(){
             // `;
             $("#lista_bebidas").addClass('d-none');
             $("#painel_confirmacao").removeClass('d-none');
+            $(".contact-page__page-title").remove();
             $("html, body").stop().animate({ scrollTop: 0 }, 600, 'swing');
 
-            // ADICIONAR NO SPAN .PEDIDO_X LISTA DE BEBIDAS E SUAS QUANTIDADES
-            // 
+            // ADICIONAR NO SPAN .PEDIDO_1 LISTA DE BEBIDAS E SUAS QUANTIDADES, TOTAL E ENTREGA
+            
+            // VERIFICAR SE EXISTE OUTRA OPCAO DE PEDIDO (LENGTH DA RESPONSE)
+            // $('[for="pedido_1"]')[0].innerText = "Pedido" 
+            // ADICIONAR NO SPAN .PEDIDO_2 LISTA DE BEBIDAS E SUAS QUANTIDADES, TOTAL E ENTREGA
         },
         error: function(response){
             alert('Error!!!!');
