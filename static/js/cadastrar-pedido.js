@@ -52,4 +52,3 @@ function confirmarPedido(){
     });
     $("#exampleModalCenter").modal('hide');
 }
-
