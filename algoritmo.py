@@ -73,7 +73,6 @@ def exist_stock(depo_close, clusters_command, order):
 
         depo_close.loc[id, "condition"] = "infull"
         for drink,row_order in order.iterrows():
-            pdb.set_trace()
             if row_order["quantity"] > stock_drinks.loc[drink, 'quantity']:
                 depo_close.loc[id, "condition"] = "partial"
                 break
@@ -201,13 +200,18 @@ def bussola(order): #lat e lon
         stock = get_stock_per_drink(id_depo) #DataFrame com estoque de bebidas do maior deposito
         stock.set_index("drink_name", inplace=True)
         deliv = order["quantity"].to_dict()
+        for key, value in deliv.items():
+            deliv[key] = int(value)
+        
         price = 0
         for drink, row in drinks_price.iterrows():
             if drink in deliv.keys():
                 price += order.loc[drink,"price"]*deliv[drink]
         
+        price_total = price+stock.loc[drink, "price"]
+        price_total = float(price_total)
         result = {
-                    "total1": round(price,2) + round(stock.loc[drink, "price"],2),
+                    "total1": round(price_total,2),
                     "entrega1":"Hoje",
                     "pedido1": deliv,
                 }
@@ -225,24 +229,34 @@ def bussola(order): #lat e lon
         stock = get_stock_per_drink(id_depo) #DataFrame com estoque de bebidas do maior deposito
         stock.set_index("drink_name", inplace=True)
         price = 0
+        for key, value in deliv.items():
+            deliv[key] = int(value)
+        
         for drink, row in drinks_price.iterrows():
             if drink in deliv.keys():
                 price += order.loc[drink,"price"]*deliv[drink]
+        price_total = price+stock.loc[drink, "price"]
+        price_total = float(price_total)
         result = {
-            "total1": round(price,2) + round(stock.loc[drink, "price"],2),
+            "total1": round(price_total,2),
             "entrega1":"Hoje",
             "pedido1": deliv,
         }
-        
+        pdb.set_trace()
         if combine:
             deliv = order["quantity"].to_dict()
+            for key, value in deliv.items():
+                deliv[key] = float(value)
+        
             price = 0
             for drink, row in drinks_price.iterrows():
                 if drink in deliv.keys():
                     price += order.loc[drink,"price"]*deliv[drink]
 
+            price_total = price + freight
+            price_total = int(price_total)
             result2 = {
-                        "total2": round(price,2)+round(freight,2),
+                        "total2": round(price_total, 2),
                         "entrega2":"Hoje",
                         "pedido2": deliv,
                     }
@@ -262,13 +276,17 @@ def bussola(order): #lat e lon
         stock = get_stock_per_drink(id_depo) #DataFrame com estoque de bebidas do maior deposito
         stock.set_index("drink_name", inplace=True)
         deliv = order["quantity"].to_dict()
+        for key, value in deliv.items():
+            deliv[key] = int(value)
+        
         price = 0
         for drink, row in drinks_price.iterrows():
             if drink in deliv.keys():
                 price += order.loc[drink,"price"]*deliv[drink]
-        
+        price_total = price+stock.loc[drink, "price"]
+        price_total = float(price_total)
         result = {
-                    "total1": round(price,2) + round(stock.loc[drink, "price"],2),
+                    "total1": round(price_total,2),
                     "entrega1":"Amanhã",
                     "pedido1": deliv,
                 }
@@ -278,7 +296,7 @@ def bussola(order): #lat e lon
 
 if __name__ == "__main__":
     order = pd.DataFrame({"drink":['Original', "Budweiser", "Guarana Antarctica", 
-    "Energetico Fusion Normal", "Energetico Fusion Pessego"], "quantity":[100, 50, 300, 120, 10]})
+    "Energetico Fusion Normal", "Energetico Fusion Pessego"], "quantity":[100, 50, 300, 120, 210]})
     order.set_index(["drink"], inplace=True)
     
     dict_pedido = bussola(order)
