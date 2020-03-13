@@ -61,15 +61,25 @@ def pedido():
     nome = dict_pedido.pop("nome")
     email = dict_pedido.pop("email")
 
+    dict_pedido = {k: v for k, v in dict_pedido.items() if v is not ''}
+
     # Testing algortimo function
 
     customer_id = 1 # Setting default customer
     df_customer = get_customer_info(1)
-    quantidade_pedido = pd.DataFrame({"bebida":dict_pedido.keys(), "quantidade":dict_pedido.values()})
-    quantidade_pedido.set_index(["bebida"], inplace=True)
-    # print(bussola(quantidade_pedido, df_customer['lat'].values[0], df_customer['lon'].values[0]))
+    order = pd.DataFrame({"bebida":dict_pedido.keys(), "quantidade":dict_pedido.values()})
+    order.set_index(["bebida"], inplace=True)
+    # print(bussola(order, df_customer['lat'].values[0], df_customer['lon'].values[0]))
+
 
     ## DICT PARA O FRONT
-    dict_pedidos={"test":1, "tst":2}
+    dict_pedidos = {
+        "total1": round(55.899, 2),
+        "entrega1": "Amanhã",
+        "pedido1": dict_pedido,
+        "total2": round(59.779, 2),
+        "entrega2": "Hoje",
+        "pedido2": dict_pedido,
+    }
     return jsonify(dict_pedidos), 200
 

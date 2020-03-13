@@ -10,6 +10,12 @@
 
 
 {% block conteudo %}
+<style>
+b{
+    font-weight: 600;
+}
+</style>
+
 <h1 class="d-flex justify-content-center mt-2 mb-4" style='font-family: "Lato", Arial, sans-serif;'>Faça seu pedido</h1>
 <div class="internal-page__wrap">
     <div class="contact-page__wrap">
@@ -67,27 +73,23 @@
                         <div class="screen-reader-response"></div>
                         <div class="row d-flex" id="opcoes_pedido" style="justify-content: space-around;">
                             <!-- pedido 1 -->
-                            <div class="col-3 m-3" id="opcao_1" style="border-radius: 1000px;border: double;border-color: #ffbb287d;">
-                                <div class="field pb-0">
-                                    <label for="pedido_1" class="field__label" style="text-align-last: center;font-size: larger;">Opção 1</label>
-                                    <span class="wpcf7-form-control-wrap pedido_1 d-flex justify-content-center">
-
-                                    </span>
+                            <div class="col-5 m-3" style="border-radius: 1000px;border: double;border-color: #ffbb287d;">
+                                <div class="field p-4 pb-0" id="opcao_1"  style="text-align: center;">
+                                    <label class="field__label mb-2" style="text-align-last: center;font-size: larger;">Opção 1</label>
+                                    
                                 </div>
                                 <div class="field pb-0 d-flex justify-content-center" style="width:100%;align-items: center;">
-                                        <input type="submit" value="Escolher" class="submit m-3" onclick="escolherPedido1()">
+                                        <input type="submit" value="Escolher" class="submit m-2" onclick="escolherPedido1()">
                                 </div>
                             </div>
                             <!-- pedido 2 -->
-                            <div class="col-3 m-3 d-none" id="opcao_2" style="border-radius: 1000px;border: double;border-color: #ffbb287d;">
-                                <div class="field pb-0">
-                                    <label for="pedido_2" class="field__label" style="text-align-last: center;font-size: larger;">Opção 2</label>
-                                    <span class="wpcf7-form-control-wrap pedido_2 d-flex justify-content-center">
-
-                                    </span>
+                            <div class="col-5 m-3 d-none" style="border-radius: 1000px;border: double;border-color: #ffbb287d;">
+                                <div class="field p-4 pb-0" id="opcao_2" style="text-align: center;">
+                                    <label class="field__label mb-2" style="text-align-last: center;font-size: larger;">Opção 2</label>
+                                    
                                 </div>
                                 <div class="field pb-0 d-flex justify-content-center" style="width:100%;align-items: center;">
-                                        <input type="submit" value="Escolher" class="submit m-3" onclick="escolherPedido1()">
+                                        <input type="submit" value="Escolher" class="submit m-2" onclick="escolherPedido2()">
                                 </div>
                             </div>
                         </div>
