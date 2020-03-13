@@ -107,5 +107,5 @@ def get_stock_per_cluster(cdd_id):
     df_per_cluster = pd.read_sql_query(query_cdd, conn, params = [cdd_id])
     return df_per_cluster[['cluster', 'quantity']]
     
-# if __name__=='__main__':
-    # print(get_customer_info(1))
+if __name__=='__main__':
+    print(get_drinks_price())

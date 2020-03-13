@@ -70,6 +70,9 @@ def pedido():
     # print(bussola(quantidade_pedido, df_customer['lat'].values[0], df_customer['lon'].values[0]))
 
     ## DICT PARA O FRONT
-    dict_pedidos={"test":1, "tst":2}
-    return jsonify(dict_pedidos), 200
-
+    order = pd.DataFrame({"drink":['Original', "Budweiser", "Guarana Antarctica", 
+    "Energetico Fusion Normal", "Energetico Fusion Pessego"], "quantity":[100, 50, 300, 120, 10]})
+    order.set_index(["drink"], inplace=True)
+    dict_pedidos=bussola(order)
+    flash("Pedido cadastrado!")
+    return render_template('cadastrar-pedido.html', dict_pedidos=dict_pedidos)
