@@ -18,7 +18,7 @@
                 <div class="contact-page__form-holder contact-page__form-holder--visible"
                     data-contact-dropdown-holder="">
                     <h3 class="contact-page__page-title"></h3>
-                    <div role="form" class="wpcf7" id="wpcf7-f2218-p371-o1" lang="pt-BR" dir="ltr">
+                    <div role="form" class="wpcf7" id="lista_bebidas" lang="pt-BR" dir="ltr">
                         <div class="screen-reader-response"></div>
                         <form method="post" class="cadastrar-pedido">
                             <div class="field">
@@ -63,28 +63,40 @@
                             </div>
                         </div>
                     </div>
+                    <div role="form" class="wpcf7 d-none" id="painel_confirmacao" lang="pt-BR" dir="ltr">
+                        <div class="screen-reader-response"></div>
+                        <div class="row d-flex" id="opcoes_pedido" style="justify-content: space-around;">
+                            <!-- pedido 1 -->
+                            <div class="col-3 m-3" id="opcao_1" style="border-radius: 1000px;border: double;border-color: #ffbb287d;">
+                                <div class="field pb-0">
+                                    <label for="pedido_1" class="field__label" style="text-align-last: center;font-size: larger;">Opção 1</label>
+                                    <span class="wpcf7-form-control-wrap pedido_1 d-flex justify-content-center">
+
+                                    </span>
+                                </div>
+                                <div class="field pb-0 d-flex justify-content-center" style="width:100%;align-items: center;">
+                                        <input type="submit" value="Escolher" class="submit m-3" onclick="escolherPedido1()">
+                                </div>
+                            </div>
+                            <!-- pedido 2 -->
+                            <div class="col-3 m-3 d-none" id="opcao_2" style="border-radius: 1000px;border: double;border-color: #ffbb287d;">
+                                <div class="field pb-0">
+                                    <label for="pedido_2" class="field__label" style="text-align-last: center;font-size: larger;">Opção 2</label>
+                                    <span class="wpcf7-form-control-wrap pedido_2 d-flex justify-content-center">
+
+                                    </span>
+                                </div>
+                                <div class="field pb-0 d-flex justify-content-center" style="width:100%;align-items: center;">
+                                        <input type="submit" value="Escolher" class="submit m-3" onclick="escolherPedido1()">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
     <hr>
 </div>
-
-<!-- Modal -->
-<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered text-center" role="document">
-    <div class="modal-content" style="background: linear-gradient(to bottom, #ffc72c 0%, #ff992c 100%); border-radius: 100px;">
-      <div class="modal-body">
-      </div>
-      <div class="modal-footer d-flex justify-content-center" style="border-top:0;">
-        <div class="age-gate-dialog__buttons-holder">
-            <button class="age-gate-dialog__answer-button" data-dismiss="modal">Não</button>
-            <button class="age-gate-dialog__answer-button" type="submit" value="1" onclick="confirmarPedido()">Sim</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
 
 {% endblock %}
