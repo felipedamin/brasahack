@@ -73,6 +73,7 @@ def exist_stock(depo_close, clusters_command, order):
 
         depo_close.loc[id, "condition"] = "infull"
         for drink,row_order in order.iterrows():
+            pdb.set_trace()
             if row_order["quantity"] > stock_drinks.loc[drink, 'quantity']:
                 depo_close.loc[id, "condition"] = "partial"
                 break
