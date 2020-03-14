@@ -280,7 +280,8 @@ if __name__ == "__main__":
     "Energetico Fusion Normal", "Energetico Fusion Pessego"], "quantity":[100, 50, 300, 120, 10]})
     order.set_index(["drink"], inplace=True)
     
-    bussola(order)
+    dict_pedido = bussola(order)
+    print(dict_pedido)
 
 
 
