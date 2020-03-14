@@ -200,6 +200,9 @@ def bussola(order): #lat e lon
         stock = get_stock_per_drink(id_depo) #DataFrame com estoque de bebidas do maior deposito
         stock.set_index("drink_name", inplace=True)
         deliv = order["quantity"].to_dict()
+        for key, value in deliv.items():
+            deliv[key] = int(value)
+        
         price = 0
         for drink, row in drinks_price.iterrows():
             if drink in deliv.keys():
@@ -226,6 +229,9 @@ def bussola(order): #lat e lon
         stock = get_stock_per_drink(id_depo) #DataFrame com estoque de bebidas do maior deposito
         stock.set_index("drink_name", inplace=True)
         price = 0
+        for key, value in deliv.items():
+            deliv[key] = int(value)
+        
         for drink, row in drinks_price.iterrows():
             if drink in deliv.keys():
                 price += order.loc[drink,"price"]*deliv[drink]
@@ -236,16 +242,19 @@ def bussola(order): #lat e lon
             "entrega1":"Hoje",
             "pedido1": deliv,
         }
-        
+        pdb.set_trace()
         if combine:
             deliv = order["quantity"].to_dict()
+            for key, value in deliv.items():
+                deliv[key] = float(value)
+        
             price = 0
             for drink, row in drinks_price.iterrows():
                 if drink in deliv.keys():
                     price += order.loc[drink,"price"]*deliv[drink]
 
             price_total = price + freight
-            price_total = float(price_total)
+            price_total = int(price_total)
             result2 = {
                         "total2": round(price_total, 2),
                         "entrega2":"Hoje",
@@ -267,6 +276,9 @@ def bussola(order): #lat e lon
         stock = get_stock_per_drink(id_depo) #DataFrame com estoque de bebidas do maior deposito
         stock.set_index("drink_name", inplace=True)
         deliv = order["quantity"].to_dict()
+        for key, value in deliv.items():
+            deliv[key] = int(value)
+        
         price = 0
         for drink, row in drinks_price.iterrows():
             if drink in deliv.keys():
