@@ -11,7 +11,7 @@ from htmlmin.main import minify
 
 
 from functions_database import get_drinks_price, get_customer_info
-from algoritmo import bussola
+from algoritmo import bussola, cadastrar_entrega
 import pandas as pd
 
 
@@ -44,6 +44,9 @@ def cadastro_order():
     if request.method == 'POST':
         # SALVAR PEDIDO NO BANCO
 
+        # Adicionar aos deliveries
+        cadastrar_entrega(request.form.to_dict())
+
         return jsonify({'response': 'ok'}), 200
 
     return jsonify({'response': 'nok'}), 400
@@ -68,9 +71,11 @@ def pedido():
     df_customer = get_customer_info(1)
     
     dict_order = {"drink":list(dict_order.keys()), "quantity":list(dict_order.values())}
+    
 
     order = pd.DataFrame(dict_order)
-    order.set_index(["drink"], inplace=True)
+    #order.set_index(["drink"], inplace=True)
+    print(order)
 
     dict_order = bussola(order)
 

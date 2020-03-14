@@ -38,12 +38,11 @@ def order_cluster(clusters, order):
 
     for cluster,row in clusters.iterrows():
         names = clusters.loc[cluster,"name"]
-        order.loc[order.index.isin(names),"cluster"] = cluster
+        order.loc[order.drink.isin(names),"cluster"] = cluster
 
     for drink, row in drinks_price.iterrows():
         if drink in order.index:
             order.loc[drink,"price"] = drinks_price.loc[drink,"price"]
-
     order["cluster"] = order["cluster"].astype(int)
     clusters_command = order.groupby("cluster").agg('sum')
 
@@ -67,9 +66,9 @@ def exist_stock(depo_close, clusters_command, order):
 
     for id,row_depo in depo_close.iterrows():
         stock_drinks = get_stock_per_drink(id)
-        stock_drinks.set_index(["drink_name"], inplace=True)
+        #stock_drinks.set_index(["drink_name"], inplace=True)
         stock_clusters = get_stock_per_cluster(id)
-        stock_clusters.set_index(["cluster"], inplace=True)
+        #stock_clusters.set_index(["cluster"], inplace=True)
 
         depo_close.loc[id, "condition"] = "infull"
         for drink, row_order in order.iterrows():
@@ -113,7 +112,7 @@ def combine_depo(depo_ranking, order):
 def mix_drinks(id_depo, order):
 
     stock_drinks = get_stock_per_drink(id_depo)
-    stock_drinks.set_index(["drink_name"], inplace=True)
+    #stock_drinks.set_index(["drink_name"], inplace=True)
     deliv = {}
 
     for drink, row in order.iterrows():
@@ -291,11 +290,14 @@ def bussola(order): #lat e lon
 
         return result
 
+def cadastrar_entrega(aux):
+    print(aux)
+
 
 if __name__ == "__main__":
     order = pd.DataFrame({"drink":['Original', "Budweiser", "Guarana Antarctica",
     "Energetico Fusion Normal", "Energetico Fusion Pessego"], "quantity":[100, 50, 300, 120, 210]})
-    order.set_index(["drink"], inplace=True)
+    #order.set_index(["drink"], inplace=True)
 
     dict_pedido = bussola(order)
     print(dict_pedido)

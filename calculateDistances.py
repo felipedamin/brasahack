@@ -29,7 +29,6 @@ class deliveries:
         deltaLat = (self.cdds['lat'] - lat) * degreeToRad
         deltaLon = (self.cdds['lon'] - lon) * degreeToRad
 
-
         aux = np.sin(deltaLat/2)**2 + np.cos(lat*degreeToRad) * np.cos(self.cdds['lat'] * degreeToRad) * (np.sin(deltaLon/2))**2
         c = 2 * np.arctan2(np.sqrt(aux), np.sqrt(1 - aux))
 
@@ -42,8 +41,8 @@ class deliveries:
         price = round(self.cdds['distance'] * 10, 2)
         self.cdds = self.cdds.assign(price=price)
         self.cdds.sort_values(by=['price'], inplace=True, ascending=True)
+
         # devolve a opçao mais barata
-        #return self.cdds.loc[self.cdds['price'].idxmin()]
         return self.cdds.head(n)
 
 def mainTest():
