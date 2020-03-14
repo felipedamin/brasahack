@@ -19,13 +19,18 @@ function calcularPedido(){
         url: "/pedido/",
         data: data,
         success: function(response){
-            $(".modal-body")[0].innerHTML = `
-                <p class="age-gate-dialog__question" style="margin-top: 10%;">
-                    O total do seu pedido é de <b style="font-weight:900">R$${response.total}</b> sendo
-                     <b style="font-weight:900">R$${response.frete}</b> de frete com entrega prevista para ${response.prazo}</p>
-                <p class="age-gate-dialog__question mb-0" style="font-weight:900; font-size:16pt">Confirmar?</p>
-            `;
-            $("#exampleModalCenter").modal('show');
+            // $(".modal-body")[0].innerHTML = `
+            //     <p class="age-gate-dialog__question" style="margin-top: 10%;">
+            //         O total do seu pedido é de <b style="font-weight:900">R$${response.total}</b> sendo
+            //          <b style="font-weight:900">R$${response.frete}</b> de frete com entrega prevista para ${response.prazo}</p>
+            //     <p class="age-gate-dialog__question mb-0" style="font-weight:900; font-size:16pt">Confirmar?</p>
+            // `;
+            $("#lista_bebidas").addClass('d-none');
+            $("#painel_confirmacao").removeClass('d-none');
+            $("html, body").stop().animate({ scrollTop: 0 }, 600, 'swing');
+
+            // ADICIONAR NO SPAN .PEDIDO_X LISTA DE BEBIDAS E SUAS QUANTIDADES
+            // 
         },
         error: function(response){
             alert('Error!!!!');
@@ -47,4 +52,3 @@ function confirmarPedido(){
     });
     $("#exampleModalCenter").modal('hide');
 }
-

@@ -36,16 +36,17 @@ def errorPage():
 
 @app.route('/')
 def home():
-    return render_template('home.html')
+    return redirect("https://www.ambev.com.br/", code=302)
 
 
 @app.route('/cadastrar-pedido/', methods=['GET', 'POST'])
 def cadastro_order():
-    if request.method == 'GET':
+    if request.method == 'POST':
+        # SALVAR PEDIDO NO BANCO
 
-        return render_template('cadastro.html')
-    else:
-        return 'Ainda nao ta feito'
+        return jsonify({'response': 'ok'}), 200
+    
+    return jsonify({'response': 'nok'}), 400
 
 
 @app.route('/pedido/', methods=['GET', 'POST'])
@@ -64,14 +65,9 @@ def pedido():
 
     customer_id = 1 # Setting default customer
     df_customer = get_customer_info(1)
-    quantidade_pedido = pd.DataFrame({"bebida":dict_pedido.keys(), "quantidade":dict_pedido.values()})
-    quantidade_pedido.set_index(["bebida"], inplace=True)
-    print(bussola(quantidade_pedido, df_customer['lat'].values[0], df_customer['lon'].values[0]))
-
-    ## DICT PARA O FRONT
-    order = pd.DataFrame({"drink":['Original', "Budweiser", "Guarana Antarctica", 
-    "Energetico Fusion Normal", "Energetico Fusion Pessego"], "quantity":[100, 50, 300, 120, 10]})
-    order.set_index(["drink"], inplace=True)
+    order = pd.DataFrame({"bebida":dict_pedido.keys(), "quantidade":dict_pedido.values()})
+    order.set_index(["bebida"], inplace=True)
+    # print(bussola(order, df_customer['lat'].values[0], df_customer['lon'].values[0]))
     dict_pedidos=bussola(order)
-    flash("Pedido cadastrado!")
-    return render_template('cadastrar-pedido.html', dict_pedidos=dict_pedidos)
+
+    return jsonify(dict_pedidos), 200
