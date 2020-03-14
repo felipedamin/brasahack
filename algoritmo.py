@@ -233,7 +233,7 @@ def bussola(order): #lat e lon
 
         for drink, row in drinks_price.iterrows():
             if drink in deliv.keys():
-                price += order.loc[drink,"price"]*deliv[drink]
+                price += deliv[drink]*deliv[drink]
         price_total = price+stock.loc[drink, "price"]
         price_total = float(price_total)
         result = {
@@ -241,7 +241,6 @@ def bussola(order): #lat e lon
             "entrega1":"Hoje",
             "pedido1": deliv,
         }
-        pdb.set_trace()
         if combine:
             deliv = order["quantity"].to_dict()
             for key, value in deliv.items():

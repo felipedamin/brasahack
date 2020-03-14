@@ -52,24 +52,26 @@ def cadastro_order():
 @app.route('/pedido/', methods=['GET', 'POST'])
 def pedido():
     if request.method == 'GET':
-        dict_bebidas = get_drinks_price()
+        dict_bebidas = get_drinks_price().sort_values(by="price")
         dict_bebidas = dict(zip(dict_bebidas.name, dict_bebidas.price))
         # recebe um df com as bebidas e preços
         return render_template('cadastrar-pedido.html', dict_bebidas=dict_bebidas)
 
-    dict_pedido = request.form.to_dict()
-    nome = dict_pedido.pop("nome")
-    email = dict_pedido.pop("email")
+    dict_order = request.form.to_dict()
+    nome = dict_order.pop("nome")
+    email = dict_order.pop("email")
 
-    # Testing algortimo function
+    dict_order = {k: int(v) for k, v in dict_order.items() if v is not ''}
 
+    # Testing algortimo functioFn
     customer_id = 1 # Setting default customer
     df_customer = get_customer_info(1)
-    order = pd.DataFrame(dict_pedido.items(), columns = ['drink', 'quantity'])
-    order.set_index(['drink'], inplace=True)
-    order['quantity'] = order['quantity'].astype(int)
-    # print(bussola(order, df_customer['lat'].values[0], df_customer['lon'].values[0]))
-    dict_pedidos=bussola(order)
-    dict_pedidos = {}
+    
+    dict_order = {"drink":list(dict_order.keys()), "quantity":list(dict_order.values())}
 
-    return jsonify(dict_pedidos), 200
+    order = pd.DataFrame(dict_order)
+    order.set_index(["drink"], inplace=True)
+
+    dict_order = bussola(order)
+
+    return jsonify(dict_order), 200

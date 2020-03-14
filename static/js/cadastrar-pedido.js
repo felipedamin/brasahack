@@ -27,10 +27,38 @@ function calcularPedido(){
             // `;
             $("#lista_bebidas").addClass('d-none');
             $("#painel_confirmacao").removeClass('d-none');
+            $(".contact-page__page-title").remove();
             $("html, body").stop().animate({ scrollTop: 0 }, 600, 'swing');
 
-            // ADICIONAR NO SPAN .PEDIDO_X LISTA DE BEBIDAS E SUAS QUANTIDADES
-            // 
+            // IF 2 PEDIDOS TITLE = "TEMOS UMA OUTRA OPÇÃO PARA VOCÊ"
+            // IF 1, CONFIRME SEU PEDIDO
+
+            var num_pedidos = Object.keys(response).length / 3;
+            for(i=1; i <= num_pedidos; i++){
+                if(i==2)
+                    $("#opcao_2").parent().removeClass("d-none");
+                
+                for(j=0;j < Object.keys(response[`pedido${i}`]).length;j++){
+                    $(`#opcao_${i}`).append(
+                        `
+                        <span class="wpcf7-form-control-wrap pedido_${i} d-flex justify-content-between"> 
+                            <p style="margin-right:30%;text-align: initial;">${Object.keys(response[`pedido${i}`])[j]}:</p>
+                            <p><b>${Object.values(response[`pedido${i}`])[j]}</b></p>
+                        </span>
+                        <div class="d-none" id="dadosPedido${i}">${JSON.stringify(response[`pedido${i}`])}</div>
+                        `                
+                    )
+                }
+    
+                $(`#opcao_${i}`).append(
+                    `
+                    <span class="wpcf7-form-control-wrap pedido_${i} mt-4"> 
+                        Com entrega prevista para <b>${response[`entrega${i}`]}</b> e total de <b>R$${response[`total${i}`]}</b>
+                    </span>
+                    `                
+                )
+
+            }
         },
         error: function(response){
             alert('Error!!!!');
@@ -38,17 +66,26 @@ function calcularPedido(){
     });
 }
 
-function confirmarPedido(){
+function confirmarPedido(dados){
+ 
     $.ajax({
         method: "POST",
         url: "/cadastrar-pedido/",
-        data: {},
+        data: dados,
         success: function(response){
-            alert('Cadastrado com sucesso!');
+            toastr.success('Cadastrado com sucesso!!')
+            window.location.reload();
         },
-        error: function(response){
-            alert('Error!!!!');
+        error: function(){
+            alert('Error, tente novamente!!');
         }
     });
-    $("#exampleModalCenter").modal('hide');
+}
+
+function escolherPedido1(){
+    confirmarPedido(JSON.parse($("#dadosPedido1")[0].innerText));
+}
+
+function escolherPedido2(){
+    confirmarPedido(JSON.parse($("#dadosPedido2")[0].innerText));
 }
