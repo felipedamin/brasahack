@@ -45,6 +45,7 @@ function calcularPedido(){
                             <p style="margin-right:30%;text-align: initial;">${Object.keys(response[`pedido${i}`])[j]}:</p>
                             <p><b>${Object.values(response[`pedido${i}`])[j]}</b></p>
                         </span>
+                        <div class="d-none" id="dadosPedido${i}">${JSON.stringify(response[`pedido${i}`])}</div>
                         `                
                     )
                 }
@@ -58,9 +59,6 @@ function calcularPedido(){
                 )
 
             }
-            // VERIFICAR SE EXISTE OUTRA OPCAO DE PEDIDO (LENGTH DA RESPONSE)
-            // $('[for="pedido_1"]')[0].innerText = "Pedido" 
-            // ADICIONAR NO SPAN .PEDIDO_2 LISTA DE BEBIDAS E SUAS QUANTIDADES, TOTAL E ENTREGA
         },
         error: function(response){
             alert('Error!!!!');
@@ -68,17 +66,26 @@ function calcularPedido(){
     });
 }
 
-function confirmarPedido(){
+function confirmarPedido(dados){
+ 
     $.ajax({
         method: "POST",
         url: "/cadastrar-pedido/",
-        data: {},
+        data: dados,
         success: function(response){
-            alert('Cadastrado com sucesso!');
+            toastr.success('Cadastrado com sucesso!!')
+            window.location.reload();
         },
-        error: function(response){
-            alert('Error!!!!');
+        error: function(){
+            alert('Error, tente novamente!!');
         }
     });
-    $("#exampleModalCenter").modal('hide');
+}
+
+function escolherPedido1(){
+    confirmarPedido(JSON.parse($("#dadosPedido1")[0].innerText));
+}
+
+function escolherPedido2(){
+    confirmarPedido(JSON.parse($("#dadosPedido2")[0].innerText));
 }
