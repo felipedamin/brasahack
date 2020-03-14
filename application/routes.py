@@ -45,7 +45,7 @@ def cadastro_order():
         # SALVAR PEDIDO NO BANCO
 
         return jsonify({'response': 'ok'}), 200
-    
+
     return jsonify({'response': 'nok'}), 400
 
 
@@ -56,7 +56,7 @@ def pedido():
         dict_bebidas = dict(zip(dict_bebidas.name, dict_bebidas.price))
         # recebe um df com as bebidas e preços
         return render_template('cadastrar-pedido.html', dict_bebidas=dict_bebidas)
-    
+
     dict_pedido = request.form.to_dict()
     nome = dict_pedido.pop("nome")
     email = dict_pedido.pop("email")
@@ -65,9 +65,11 @@ def pedido():
 
     customer_id = 1 # Setting default customer
     df_customer = get_customer_info(1)
-    order = pd.DataFrame({"bebida":dict_pedido.keys(), "quantidade":dict_pedido.values()})
-    order.set_index(["bebida"], inplace=True)
+    order = pd.DataFrame(dict_pedido.items(), columns = ['drink', 'quantity'])
+    order.set_index(['drink'], inplace=True)
+    order['quantity'] = order['quantity'].astype(int)
     # print(bussola(order, df_customer['lat'].values[0], df_customer['lon'].values[0]))
     dict_pedidos=bussola(order)
+    dict_pedidos = {}
 
     return jsonify(dict_pedidos), 200
