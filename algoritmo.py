@@ -73,7 +73,6 @@ def exist_stock(depo_close, clusters_command, order):
 
         depo_close.loc[id, "condition"] = "infull"
         for drink,row_order in order.iterrows():
-            pdb.set_trace()
             if row_order["quantity"] > stock_drinks.loc[drink, 'quantity']:
                 depo_close.loc[id, "condition"] = "partial"
                 break
@@ -206,8 +205,10 @@ def bussola(order): #lat e lon
             if drink in deliv.keys():
                 price += order.loc[drink,"price"]*deliv[drink]
         
+        price_total = price+stock.loc[drink, "price"]
+        price_total = float(price_total)
         result = {
-                    "total1": float(round(price,2)) + float(round(stock.loc[drink, "price"],2)),
+                    "total1": round(price_total,2),
                     "entrega1":"Hoje",
                     "pedido1": deliv,
                 }
@@ -228,8 +229,10 @@ def bussola(order): #lat e lon
         for drink, row in drinks_price.iterrows():
             if drink in deliv.keys():
                 price += order.loc[drink,"price"]*deliv[drink]
+        price_total = price+stock.loc[drink, "price"]
+        price_total = float(price_total)
         result = {
-            "total1": float(round(price,2)) + float(round(stock.loc[drink, "price"],2)),
+            "total1": round(price_total,2),
             "entrega1":"Hoje",
             "pedido1": deliv,
         }
@@ -241,8 +244,10 @@ def bussola(order): #lat e lon
                 if drink in deliv.keys():
                     price += order.loc[drink,"price"]*deliv[drink]
 
+            price_total = price + freight
+            price_total = float(price_total)
             result2 = {
-                        "total2": float(round(price,2))+float(round(freight,2)),
+                        "total2": round(price_total, 2),
                         "entrega2":"Hoje",
                         "pedido2": deliv,
                     }
@@ -266,9 +271,10 @@ def bussola(order): #lat e lon
         for drink, row in drinks_price.iterrows():
             if drink in deliv.keys():
                 price += order.loc[drink,"price"]*deliv[drink]
-        
+        price_total = price+stock.loc[drink, "price"]
+        price_total = float(price_total)
         result = {
-                    "total1": float(round(price,2)) + float(round(stock.loc[drink, "price"],2)),
+                    "total1": round(price_total,2),
                     "entrega1":"Amanhã",
                     "pedido1": deliv,
                 }
