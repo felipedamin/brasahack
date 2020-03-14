@@ -207,7 +207,7 @@ def bussola(order): #lat e lon
                 price += order.loc[drink,"price"]*deliv[drink]
         
         result = {
-                    "total1": round(price,2) + round(stock.loc[drink, "price"],2),
+                    "total1": float(round(price,2)) + float(round(stock.loc[drink, "price"],2)),
                     "entrega1":"Hoje",
                     "pedido1": deliv,
                 }
@@ -229,7 +229,7 @@ def bussola(order): #lat e lon
             if drink in deliv.keys():
                 price += order.loc[drink,"price"]*deliv[drink]
         result = {
-            "total1": round(price,2) + round(stock.loc[drink, "price"],2),
+            "total1": float(round(price,2)) + float(round(stock.loc[drink, "price"],2)),
             "entrega1":"Hoje",
             "pedido1": deliv,
         }
@@ -242,7 +242,7 @@ def bussola(order): #lat e lon
                     price += order.loc[drink,"price"]*deliv[drink]
 
             result2 = {
-                        "total2": round(price,2)+round(freight,2),
+                        "total2": float(round(price,2))+float(round(freight,2)),
                         "entrega2":"Hoje",
                         "pedido2": deliv,
                     }
@@ -268,7 +268,7 @@ def bussola(order): #lat e lon
                 price += order.loc[drink,"price"]*deliv[drink]
         
         result = {
-                    "total1": round(price,2) + round(stock.loc[drink, "price"],2),
+                    "total1": float(round(price,2)) + float(round(stock.loc[drink, "price"],2)),
                     "entrega1":"Amanhã",
                     "pedido1": deliv,
                 }
@@ -278,7 +278,7 @@ def bussola(order): #lat e lon
 
 if __name__ == "__main__":
     order = pd.DataFrame({"drink":['Original', "Budweiser", "Guarana Antarctica", 
-    "Energetico Fusion Normal", "Energetico Fusion Pessego"], "quantity":[100, 50, 300, 120, 10]})
+    "Energetico Fusion Normal", "Energetico Fusion Pessego"], "quantity":[100, 50, 300, 120, 210]})
     order.set_index(["drink"], inplace=True)
     
     dict_pedido = bussola(order)
