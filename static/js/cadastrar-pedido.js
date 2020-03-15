@@ -1,5 +1,4 @@
 $(document).ready(function(){
-
 });
 
 function calcularPedido(){
@@ -19,24 +18,18 @@ function calcularPedido(){
         url: "/pedido/",
         data: data,
         success: function(response){
-            // $(".modal-body")[0].innerHTML = `
-            //     <p class="age-gate-dialog__question" style="margin-top: 10%;">
-            //         O total do seu pedido é de <b style="font-weight:900">R$${response.total}</b> sendo
-            //          <b style="font-weight:900">R$${response.frete}</b> de frete com entrega prevista para ${response.prazo}</p>
-            //     <p class="age-gate-dialog__question mb-0" style="font-weight:900; font-size:16pt">Confirmar?</p>
-            // `;
+            $("h1")[0].innerText = "Confirme seu pedido"
             $("#lista_bebidas").addClass('d-none');
             $("#painel_confirmacao").removeClass('d-none');
             $(".contact-page__page-title").remove();
             $("html, body").stop().animate({ scrollTop: 0 }, 600, 'swing');
 
-            // IF 2 PEDIDOS TITLE = "TEMOS UMA OUTRA OPÇÃO PARA VOCÊ"
-            // IF 1, CONFIRME SEU PEDIDO
-
             var num_pedidos = Object.keys(response).length / 3;
             for(i=1; i <= num_pedidos; i++){
-                if(i==2)
+                if(i==2){
                     $("#opcao_2").parent().removeClass("d-none");
+                    $("#opcao_1 > label")[0].innerText = "Opção 1";
+                }
                 
                 for(j=0;j < Object.keys(response[`pedido${i}`]).length;j++){
                     $(`#opcao_${i}`).append(
@@ -73,8 +66,8 @@ function confirmarPedido(dados){
         url: "/cadastrar-pedido/",
         data: dados,
         success: function(response){
-            toastr.success('Cadastrado com sucesso!!')
-            window.location.reload();
+            toastr.success('Cadastrado com sucesso!!');
+            setTimeout(() => { window.location.reload(); }, 550);
         },
         error: function(){
             alert('Error, tente novamente!!');

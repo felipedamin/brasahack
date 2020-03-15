@@ -2,10 +2,11 @@
 
 {% block script %}
 <script src="{{ url_for('static', filename='js/cadastrar-pedido.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
 {% endblock %}
 
 {% block styles %}
-<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/cadastrar-pedido.css')}}">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet"/>
 {% endblock %}
 
 
@@ -75,7 +76,7 @@ b{
                             <!-- pedido 1 -->
                             <div class="col-5 m-3" style="border-radius: 1000px;border: double;border-color: #ffbb287d;">
                                 <div class="field p-4 pb-0" id="opcao_1"  style="text-align: center;">
-                                    <label class="field__label mb-2" style="text-align-last: center;font-size: larger;">Opção 1</label>
+                                    <label class="field__label mb-2" style="text-align-last: center;font-size: larger;">Pedido</label>
                                     
                                 </div>
                                 <div class="field pb-0 d-flex justify-content-center" style="width:100%;align-items: center;">
