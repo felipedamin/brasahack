@@ -53,7 +53,7 @@ def get_drinks_price():
     :return [DataFrame] no formato ['drink_id', 'price']
 
     """
-    query_drinks = "select name, price from drinks"
+    query_drinks = "select name, price from drinks order by cluster, name"
     dic_precos = pd.read_sql_query(query_drinks, conn)
     return dic_precos
 
@@ -106,6 +106,6 @@ def get_stock_per_cluster(cdd_id):
                     order by dr.cluster"""
     df_per_cluster = pd.read_sql_query(query_cdd, conn, params = [cdd_id])
     return df_per_cluster[['cluster', 'quantity']]
-    
+
 if __name__=='__main__':
     print(get_drinks_price())

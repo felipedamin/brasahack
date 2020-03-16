@@ -52,7 +52,8 @@ def cadastro_order():
 @app.route('/pedido/', methods=['GET', 'POST'])
 def pedido():
     if request.method == 'GET':
-        dict_bebidas = get_drinks_price().sort_values(by="price")
+        # dict_bebidas = get_drinks_price().sort_values(by="price")
+        dict_bebidas = get_drinks_price()
         dict_bebidas = dict(zip(dict_bebidas.name, dict_bebidas.price))
         # recebe um df com as bebidas e preços
         return render_template('cadastrar-pedido.html', dict_bebidas=dict_bebidas)
@@ -66,7 +67,7 @@ def pedido():
     # Testing algortimo functioFn
     customer_id = 1 # Setting default customer
     df_customer = get_customer_info(1)
-    
+
     dict_order = {"drink":list(dict_order.keys()), "quantity":list(dict_order.values())}
 
     order = pd.DataFrame(dict_order)
