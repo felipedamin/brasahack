@@ -2,16 +2,20 @@ $(document).ready(function(){
 });
 
 function calcularPedido(){
-    data = {
-        nome: $('#nome')[0].value,
-        email: $('#email')[0].value,
-    }
-
+    data = {}
     lista_input = $('[type="number"]');
 
     [].forEach.call(lista_input, function(input){
         data[`${input.name}`] = input.value;
     });
+
+    if(String(Object.values(data)).replace(/,/g,'') == ''){
+        alert("Preencha o a quantidade de produtos, por favor!");
+        return false;
+    }
+
+    data["nome"] = $('#nome')[0].value;
+    data["email"] = $('#email')[0].value;
 
     $.ajax({
         method: "POST",

@@ -43,7 +43,7 @@ b{
                             </div>
                             <div class="row d-flex" style="justify-content: space-around;">
                                 {% for drink, price in dict_bebidas.items() %}
-                                <div class="col-3 m-3" style="border-radius: 1000px;border: double;border-color: #ffbb287d;">
+                                <div class="col-3 m-3" style="border-radius: 1000px;border: double;border-color: #ffbb287d;padding:3.7%">
                                     <div class="field pb-0">
                                         <label for="produto_{{drink}}" class="field__label" style="text-align-last: center;">{{drink}}</label>
                                         <span class="wpcf7-form-control-wrap produto_{{drink}} d-flex justify-content-center">
@@ -52,7 +52,7 @@ b{
                                         </span>
                                     </div>
                                     <div class="field pb-0 d-flex justify-content-between" style="width:100%;align-items: center;">
-                                        <div class="col-4 p-0">
+                                        <div class="col-4 p-0 mr-3">
                                             <label for="qnt" class="field__label mb-0">Preço Unit.:</label>
                                             <p class="m-1">${{price}}</p>
                                         </div>
@@ -75,8 +75,8 @@ b{
                         <div class="row d-flex" id="opcoes_pedido" style="justify-content: space-around;">
                             <!-- pedido 1 -->
                             <div class="col-5 m-3" style="border-radius: 1000px;border: double;border-color: #ffbb287d;">
-                                <div class="field p-4 pb-0" id="opcao_1"  style="text-align: center;">
-                                    <label class="field__label mb-2" style="text-align-last: center;font-size: larger;">Pedido</label>
+                                <div class="field p-4 pb-0" id="opcao_1"  style="text-align: center;margin: 0;padding-bottom: 5%!important;">
+                                    <label class="field__label mb-3" style="text-align-last: center;font-size: larger;">Pedido</label>
                                     
                                 </div>
                                 <div class="field pb-0 d-flex justify-content-center" style="width:100%;align-items: center;">
@@ -85,8 +85,8 @@ b{
                             </div>
                             <!-- pedido 2 -->
                             <div class="col-5 m-3 d-none" style="border-radius: 1000px;border: double;border-color: #ffbb287d;">
-                                <div class="field p-4 pb-0" id="opcao_2" style="text-align: center;">
-                                    <label class="field__label mb-2" style="text-align-last: center;font-size: larger;">Opção 2</label>
+                                <div class="field p-4 mb-0" id="opcao_2" style="text-align: center;margin: 0;padding-bottom: 5%!important;">
+                                    <label class="field__label mb-3" style="text-align-last: center;font-size: larger;">Opção 2</label>
                                     
                                 </div>
                                 <div class="field pb-0 d-flex justify-content-center" style="width:100%;align-items: center;">
