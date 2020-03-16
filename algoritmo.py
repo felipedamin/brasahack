@@ -105,9 +105,8 @@ def combine_depo(depo_ranking, order):
             condition = False
             break
 
-    freight = stock_1.loc[drink, "price"] + stock_2.loc[drink, "price"]
+    freight = depo_ranking.loc[id_1, "price"] + depo_ranking.loc[id_2, "price"]
     return condition, freight
-
 
 
 def mix_drinks(id_depo, order):
@@ -173,122 +172,159 @@ def bussola(order): #lat e lon
     clusters = get_clusters()
     order,clusters_command = order_cluster(clusters, order)
 
-    # Estabelecimento do limite de preço para conseguirmos entregar ou não no dia D
-    # preco_total = quantidade_pedido['preco'].sum()
-
     # DataFrame que rankeia depositos baseado no total de estoque presente
     for id in depo_close.index:
         depo_close.loc[id,"nb_stock"] = get_stock_total(id)
-
     depo_close["nb_stock"] = depo_close["nb_stock"].astype(int)
     depo_close.sort_values(by=["nb_stock"], inplace=True, ascending=False, ignore_index=False)
 
     # Acrescentada condição de cada deposito: 'infull', 'partial' ou 'none'
     depo_close = exist_stock(depo_close, clusters_command, order)
 
-
     # DataFrame reorganizado para ter uma ordem baseado no custo de cada deposito para o cliente
     depo_close.sort_values(by=['price'], axis=0, inplace=True)
+    
+    # DataFrame que reune os drinks e seus preços correspondentes
     drinks_price = get_drinks_price()
     drinks_price.set_index("name", inplace=True)
-    if not depo_close[depo_close['condition'] == "infull"].empty:
-        depo_partial = depo_close[depo_close["condition"] == "infull"]
-        ids = depo_partial.index
-        id_depo = int(ids[0])
-        deliv = mix_drinks(id_depo, order)
-        stock = get_stock_per_drink(id_depo) #DataFrame com estoque de bebidas do maior deposito
-        stock.set_index("drink_name", inplace=True)
-        deliv = order["quantity"].to_dict()
-        for key, value in deliv.items():
-            deliv[key] = int(value)
 
+
+    if not depo_close[depo_close['condition'] == "infull"].empty:
+        #DataFrame com depositos que podem fazer entrega infull em D+0
+        depo_full = depo_close[depo_close["condition"] == "infull"]
+        
+        #Id do deposito de entrega mais barata entre os "infulls"
+        id_cheap_full = int(depo_full.index[0])
+        
+        #A entrega do deposito infull é a mesma do pedido 
+        deliv_full = order["quantity"].to_dict()
+        deliv_full = {key: int(value) for key,value in deliv_full.items()}
+        
+        #Calculo do preço sem frete
         price = 0
         for drink, row in drinks_price.iterrows():
-            if drink in deliv.keys():
-                price += order.loc[drink,"price"]*deliv[drink]
+            if drink in deliv_full.keys():
+                price += row["price"]*deliv_full[drink]
 
-        price_total = price+stock.loc[drink, "price"]
+        #Calculo do preço com frete
+        price_total = price+depo_full.loc[id_cheap_full, "price"]
         price_total = float(price_total)
         result = {
                     "total1": round(price_total,2),
                     "entrega1":"Hoje",
-                    "pedido1": deliv,
+                    "pedido1": deliv_full,
                 }
+        
+        #Considerando caso 2 caso haja tambem algum deposito com condição "partial"
+        depo_pos = depo_close[depo_close["condition"] != "none"]
+        id_cheap_part = int(depo_pos.index[0])
+        
+        if depo_pos.loc[id_cheap_part,'condition'] == "partial":     
+            #Calculo das bebidas misturadas
+            deliv_mix = mix_drinks(id_cheap_part, order)
+            deliv_mix = {key:int(value) for key,value in deliv_mix.items()}
+            
+            price = 0
+            for drink, row in drinks_price.iterrows():
+                if drink in deliv_mix.keys():
+                    price += row["price"]*deliv_mix[drink]
+
+            price_total_mix = price+depo_pos.loc[id_cheap_part, "price"]
+            price_total_mix = float(price_total_mix)
+            
+            #Resultado que contempla as duas opções
+            result2 = {
+                "total2": round(price_total_mix,2),
+                "entrega2":"Hoje",
+                "pedido2": deliv_mix,
+            }
+            result.update(result2)
 
         return result
 
-
+    #Caso em que não há possibilidade de entrega infull por apenas um deposito
     elif not depo_close[depo_close['condition'] == "partial"].empty:
-        combine,freight = combine_depo(depo_close, order)
-
         depo_partial = depo_close[depo_close["condition"] == "partial"]
-        ids = depo_partial.index
-        id_depo = int(ids[0])
-        deliv = mix_drinks(id_depo, order)
-        stock = get_stock_per_drink(id_depo) #DataFrame com estoque de bebidas do maior deposito
-        stock.set_index("drink_name", inplace=True)
+        id_cheap_part = int(depo_partial.index[0])
+        deliv_mix = mix_drinks(id_cheap_part, order)
+        deliv_mix = {key:int(value) for key,value in deliv_mix.items()}
+        
         price = 0
-        for key, value in deliv.items():
-            deliv[key] = int(value)
-
         for drink, row in drinks_price.iterrows():
-            if drink in deliv.keys():
-                price += deliv[drink]*deliv[drink]
-        price_total = price+stock.loc[drink, "price"]
+            if drink in deliv_mix.keys():
+                price += row["price"]*deliv_mix[drink]
+        price_total = price+depo_partial.loc[id_cheap_part, "price"]
         price_total = float(price_total)
         result = {
             "total1": round(price_total,2),
             "entrega1":"Hoje",
-            "pedido1": deliv,
+            "pedido1": deliv_mix,
         }
+
+        #Verificação se é também possível combinar os depósitos para uma entrega infull
+        combine,freight = combine_depo(depo_close, order)
+        #Se for possível combinar os depósitos, devemos adicionar essa possibilidade também
         if combine:
-            deliv = order["quantity"].to_dict()
-            for key, value in deliv.items():
-                deliv[key] = float(value)
+            deliv_combine = order["quantity"].to_dict()
+            deliv_combine = {key:int(value) for key,value in deliv_combine.items()}
 
             price = 0
             for drink, row in drinks_price.iterrows():
-                if drink in deliv.keys():
-                    price += order.loc[drink,"price"]*deliv[drink]
+                if drink in deliv_combine.keys():
+                    price += order.loc[drink,"price"]*deliv_combine[drink]
 
             price_total = price + freight
             price_total = int(price_total)
             result2 = {
                         "total2": round(price_total, 2),
                         "entrega2":"Hoje",
-                        "pedido2": deliv,
+                        "pedido2": deliv_combine,
                     }
             result.update(result2)
 
             return result
 
+        #Caso em que não é possível combinar os depósitos
         else:
+            id_cheapest = int(depo_close.index[0])
+        
+            deliv_none = order["quantity"].to_dict()
+            deliv_none = {key:int(value) for key,value in deliv_none.items()}
 
+            price = 0
+            for drink, row in drinks_price.iterrows():
+                if drink in deliv_none.keys():
+                    price += row["price"]*deliv_none[drink]
+
+            price_total = price+depo_close.loc[id_cheapest, "price"]
+            price_total = float(price_total)
+            result2 = {
+                        "total2": round(price_total,2),
+                        "entrega2":"Amanhã",
+                        "pedido2": deliv_none,
+                    }
+            result.update(result2)
             return result
 
+    #Caso em que a entrega será efetuada apenas amanhã. Nesse caso a entrega é infull
     else:
-        depo_partial = depo_close[depo_close["condition"] == "none"]
-        ids = depo_partial.index
-        id_depo = int(ids[0])
-        deliv = mix_drinks(id_depo, order)
-        stock = get_stock_per_drink(id_depo) #DataFrame com estoque de bebidas do maior deposito
-        stock.set_index("drink_name", inplace=True)
-        deliv = order["quantity"].to_dict()
-        for key, value in deliv.items():
-            deliv[key] = int(value)
+        id_cheap_none = int(depo_close.index[0])
+        
+        deliv_none = order["quantity"].to_dict()
+        deliv_none = {key:int(value) for key,value in deliv_none.items()}
 
         price = 0
         for drink, row in drinks_price.iterrows():
-            if drink in deliv.keys():
-                price += order.loc[drink,"price"]*deliv[drink]
-        price_total = price+stock.loc[drink, "price"]
+            if drink in deliv_none.keys():
+                price += row["price"]*deliv_none[drink]
+
+        price_total = price+depo_close.loc[id_cheap_none, "price"]
         price_total = float(price_total)
         result = {
                     "total1": round(price_total,2),
                     "entrega1":"Amanhã",
-                    "pedido1": deliv,
+                    "pedido1": deliv_none,
                 }
-
         return result
 
 
