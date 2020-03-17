@@ -106,7 +106,7 @@ def combine_depo(depo_ranking, order):
             break
 
     freight = depo_ranking.loc[id_1, "price"] + depo_ranking.loc[id_2, "price"]
-    return condition, freight
+    return condition, freight,(id_1,id_2)
 
 def mix_drinks(id_depo, order):
 
@@ -161,9 +161,9 @@ def mix_drinks(id_depo, order):
 
     return deliv
 
-def bussola(order): #lat e lon
+def bussola(order,lat=-23.6,lon=-46.6): #lat e lon
     deliv = deliveries()
-    depo_close = deliv.calculateDistances(-23.6, -46.6, 3)
+    depo_close = deliv.calculateDistances(lat, lon, 3)
     depo_close.set_index(["id"], inplace=True)
 
     # Calculo dos clusters presentes no pedido
@@ -211,6 +211,8 @@ def bussola(order): #lat e lon
                     "total1": round(price_total,2),
                     "entrega1":"Hoje",
                     "pedido1": deliv_full,
+                    "origem1": id_cheap_full,
+                    "destino1":(lat,lon)
                 }
         
         #Considerando caso 2 caso haja tambem algum deposito com condição "partial"
@@ -235,6 +237,8 @@ def bussola(order): #lat e lon
                 "total2": round(price_total_mix,2),
                 "entrega2":"Hoje",
                 "pedido2": deliv_mix,
+                "origem2": id_cheap_part,
+                "destino2":(lat,lon)
             }
             result.update(result2)
 
@@ -257,10 +261,12 @@ def bussola(order): #lat e lon
             "total1": round(price_total,2),
             "entrega1":"Hoje",
             "pedido1": deliv_mix,
+            "origem1": id_cheap_part,
+            "destino1":(lat,lon)    
         }
 
         #Verificação se é também possível combinar os depósitos para uma entrega infull
-        combine,freight = combine_depo(depo_close, order)
+        combine,freight,(id_1,id_2) = combine_depo(depo_close, order)
         #Se for possível combinar os depósitos, devemos adicionar essa possibilidade também
         if combine:
             deliv_combine = order["quantity"].to_dict()
@@ -277,6 +283,8 @@ def bussola(order): #lat e lon
                         "total2": round(price_total, 2),
                         "entrega2":"Hoje",
                         "pedido2": deliv_combine,
+                        "origem2": (id_1,id_2),
+                        "destino2":(lat,lon)
                     }
             result.update(result2)
 
@@ -300,6 +308,8 @@ def bussola(order): #lat e lon
                         "total2": round(price_total,2),
                         "entrega2":"Amanhã",
                         "pedido2": deliv_none,
+                        "origem2": id_cheapest,
+                        "destino2":(lat,lon)
                     }
             result.update(result2)
             return result
@@ -322,13 +332,16 @@ def bussola(order): #lat e lon
                     "total1": round(price_total,2),
                     "entrega1":"Amanhã",
                     "pedido1": deliv_none,
+                    "origem1": id_cheap_none,
+                    "destino1":(lat,lon)
                 }
         return result
 
 
 if __name__ == "__main__":
-    order = pd.DataFrame({"drink":['Original', "Budweiser", "Guarana Antarctica",
-    "Energetico Fusion Normal", "Energetico Fusion Pessego"], "quantity":[100, 50, 300, 120, 210]})
+    #order = pd.DataFrame({"drink":['Original', "Budweiser", "Guarana Antarctica",
+    #"Energetico Fusion Normal", "Energetico Fusion Pessego"], "quantity":[100, 50, 300, 120, 210]})
+    order = pd.DataFrame({"drink":['Colorado Appia', "Original", "Pepsi"], "quantity":[150, 210, 800]})
     order.set_index(["drink"], inplace=True)
 
     dict_pedido = bussola(order)
