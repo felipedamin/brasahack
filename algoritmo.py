@@ -167,13 +167,13 @@ def mix_drinks(id_depo, order):
 
     return deliv
 
-def cadastrarPedido(deliv):
+def cadastrarPedido(deliv_1, deliv_2=None):
 
-    return deliv
+    return deliv_1
 
 def bussola(order,lat=-23.6,lon=-46.6): #lat e lon
-    deliv = deliveries()
-    depo_close = deliv.calculateDistances(lat, lon, 3)
+    delivery = deliveries()
+    depo_close = delivery.calculateDistances(lat, lon, 3)
     depo_close.set_index(["id"], inplace=True)
 
     # Calculo dos clusters presentes no pedido
@@ -377,7 +377,7 @@ def bussola(order,lat=-23.6,lon=-46.6): #lat e lon
 if __name__ == "__main__":
     #order = pd.DataFrame({"drink":['Original', "Budweiser", "Guarana Antarctica",
     #"Energetico Fusion Normal", "Energetico Fusion Pessego"], "quantity":[100, 50, 300, 120, 210]})
-    order = pd.DataFrame({"drink":["Do Bem Pêssego", "Original"], "quantity":[10, 15]})
+    order = pd.DataFrame({"drink":["Original", "Colorado Appia", "Pepsi"], "quantity":[210, 150, 800]})
     order.set_index(["drink"], inplace=True)
 
     dict_pedido = bussola(order)
