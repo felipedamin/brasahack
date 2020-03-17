@@ -16,6 +16,8 @@ function calcularPedido(){
 
     data["nome"] = $('#nome')[0].value;
     data["email"] = $('#email')[0].value;
+    data["lat"] = $("#latitude")[0].value;
+    data["lon"] = $("#longitude")[0].value;
 
     $.ajax({
         method: "POST",

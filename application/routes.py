@@ -1,5 +1,5 @@
 from sqlalchemy.ext.declarative import as_declarative
-from flask import render_template, redirect, request, url_for, jsonify, Response, flash
+from flask import render_template, redirect, request, url_for, jsonify, Response, flash, session
 from flask_login import login_user, logout_user, login_required, current_user
 from sqlalchemy.sql import func, update
 from server import app
@@ -59,8 +59,10 @@ def pedido():
         return render_template('cadastrar-pedido.html', dict_bebidas=dict_bebidas)
 
     dict_order = request.form.to_dict()
-    nome = dict_order.pop("nome")
-    email = dict_order.pop("email")
+    session["nome"] = dict_order.pop("nome")
+    session["email"] = dict_order.pop("email")
+    session["lat"] = dict_order.pop("lat")
+    session["lon"] = dict_order.pop("lon")
 
     dict_order = {k: int(v) for k, v in dict_order.items() if v is not ''}
 
