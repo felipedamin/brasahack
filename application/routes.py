@@ -43,7 +43,7 @@ def home():
 def cadastro_order():
     if request.method == 'POST':
         # SALVAR PEDIDO NO BANCO
-
+        
         return jsonify({'response': 'ok'}), 200
 
     return jsonify({'response': 'nok'}), 400

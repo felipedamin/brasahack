@@ -10,7 +10,7 @@ function calcularPedido(){
     });
 
     if(String(Object.values(data)).replace(/,/g,'') == ''){
-        alert("Preencha o a quantidade de produtos, por favor!");
+        alert("Preencha a quantidade de produtos, por favor!");
         return false;
     }
 
@@ -70,7 +70,7 @@ function confirmarPedido(dados){
         url: "/cadastrar-pedido/",
         data: dados,
         success: function(response){
-            toastr.success('Cadastrado com sucesso!!');
+            toastr.success('Cadastrado com sucesso!');
             setTimeout(() => { window.location.reload(); }, 550);
         },
         error: function(){

@@ -108,7 +108,6 @@ def combine_depo(depo_ranking, order):
     freight = depo_ranking.loc[id_1, "price"] + depo_ranking.loc[id_2, "price"]
     return condition, freight
 
-
 def mix_drinks(id_depo, order):
 
     stock_drinks = get_stock_per_drink(id_depo)
@@ -161,7 +160,6 @@ def mix_drinks(id_depo, order):
                 stock_drinks.loc[drink,"quantity"] -= order.loc[drink, "quantity"]
 
     return deliv
-
 
 def bussola(order): #lat e lon
     deliv = deliveries()
