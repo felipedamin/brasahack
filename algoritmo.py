@@ -99,14 +99,20 @@ def combine_depo(depo_ranking, order):
     stock_2 = get_stock_per_drink(id_2) #DataFrame com estoque de bebidas do segundo maior deposito
     stock_2.set_index("drink_name", inplace=True)
     condition = True
+    deliv_by_depo = {id_1:{}, id_2:{}}
+
 
     for drink,row in order.iterrows():
         if row['quantity'] > stock_1.loc[drink, "quantity"] + stock_2.loc[drink, "quantity"]:
             condition = False
             break
+        
+        elif row['quantity'] > stock_1.loc[drink, "quantity"]:
+            deliv_by_depo[id_1][drink] =  int(stock_1.loc[drink, "quantity"])
+            deliv_by_depo[id_2][drink] =  int(row['quantity'] - stock_1.loc[drink, "quantity"])
 
     freight = depo_ranking.loc[id_1, "price"] + depo_ranking.loc[id_2, "price"]
-    return condition, freight,(id_1,id_2)
+    return condition, freight, deliv_by_depo
 
 def mix_drinks(id_depo, order):
 
@@ -161,6 +167,10 @@ def mix_drinks(id_depo, order):
 
     return deliv
 
+def cadastrarPedido(deliv):
+
+    return deliv
+
 def bussola(order,lat=-23.6,lon=-46.6): #lat e lon
     deliv = deliveries()
     depo_close = deliv.calculateDistances(lat, lon, 3)
@@ -198,6 +208,10 @@ def bussola(order,lat=-23.6,lon=-46.6): #lat e lon
         deliv_full = order["quantity"].to_dict()
         deliv_full = {key: int(value) for key,value in deliv_full.items()}
         
+        #Passar como parametro para cadastrarPedido
+        deliv_1 = {}
+        deliv_1[id_cheap_full] = deliv_full 
+
         #Calculo do preço sem frete
         price = 0
         for drink, row in drinks_price.iterrows():
@@ -212,7 +226,7 @@ def bussola(order,lat=-23.6,lon=-46.6): #lat e lon
                     "entrega1":"Hoje",
                     "pedido1": deliv_full,
                     "origem1": id_cheap_full,
-                    "destino1":(lat,lon)
+                    "destino1":[lat,lon]
                 }
         
         #Considerando caso 2 caso haja tambem algum deposito com condição "partial"
@@ -224,6 +238,10 @@ def bussola(order,lat=-23.6,lon=-46.6): #lat e lon
             deliv_mix = mix_drinks(id_cheap_part, order)
             deliv_mix = {key:int(value) for key,value in deliv_mix.items()}
             
+            #Passar como parametro para cadastrarPedido
+            deliv_2 = {}
+            deliv_2[id_cheap_part] = deliv_mix 
+
             price = 0
             for drink, row in drinks_price.iterrows():
                 if drink in deliv_mix.keys():
@@ -238,7 +256,7 @@ def bussola(order,lat=-23.6,lon=-46.6): #lat e lon
                 "entrega2":"Hoje",
                 "pedido2": deliv_mix,
                 "origem2": id_cheap_part,
-                "destino2":(lat,lon)
+                "destino2":[lat,lon]
             }
             result.update(result2)
 
@@ -248,9 +266,15 @@ def bussola(order,lat=-23.6,lon=-46.6): #lat e lon
     elif not depo_close[depo_close['condition'] == "partial"].empty:
         depo_partial = depo_close[depo_close["condition"] == "partial"]
         id_cheap_part = int(depo_partial.index[0])
+        
+        
         deliv_mix = mix_drinks(id_cheap_part, order)
         deliv_mix = {key:int(value) for key,value in deliv_mix.items()}
         
+        #Passar como parametro para cadastrarPedido
+        deliv_1 = {}
+        deliv_1[id_cheap_part] = deliv_mix
+
         price = 0
         for drink, row in drinks_price.iterrows():
             if drink in deliv_mix.keys():
@@ -262,29 +286,33 @@ def bussola(order,lat=-23.6,lon=-46.6): #lat e lon
             "entrega1":"Hoje",
             "pedido1": deliv_mix,
             "origem1": id_cheap_part,
-            "destino1":(lat,lon)    
+            "destino1":[lat,lon]   
         }
 
         #Verificação se é também possível combinar os depósitos para uma entrega infull
-        combine,freight,(id_1,id_2) = combine_depo(depo_close, order)
+        combine,freight,deliv_by_depo = combine_depo(depo_close, order)
         #Se for possível combinar os depósitos, devemos adicionar essa possibilidade também
         if combine:
             deliv_combine = order["quantity"].to_dict()
             deliv_combine = {key:int(value) for key,value in deliv_combine.items()}
 
+            #Passar como parametro para cadastrarPedido
+            deliv_2 = deliv_by_depo
+               
             price = 0
             for drink, row in drinks_price.iterrows():
                 if drink in deliv_combine.keys():
                     price += order.loc[drink,"price"]*deliv_combine[drink]
 
+            ids_depo = list(deliv_2.keys())
             price_total = price + freight
             price_total = int(price_total)
             result2 = {
                         "total2": round(price_total, 2),
                         "entrega2":"Hoje",
                         "pedido2": deliv_combine,
-                        "origem2": (id_1,id_2),
-                        "destino2":(lat,lon)
+                        "origem2": ids_depo,
+                        "destino2":[lat,lon]
                     }
             result.update(result2)
 
@@ -296,6 +324,10 @@ def bussola(order,lat=-23.6,lon=-46.6): #lat e lon
         
             deliv_none = order["quantity"].to_dict()
             deliv_none = {key:int(value) for key,value in deliv_none.items()}
+
+            #Passar como parametro para cadastrarPedido
+            deliv_2 = {}
+            deliv_2[id_cheapest] = deliv_none 
 
             price = 0
             for drink, row in drinks_price.iterrows():
@@ -309,7 +341,7 @@ def bussola(order,lat=-23.6,lon=-46.6): #lat e lon
                         "entrega2":"Amanhã",
                         "pedido2": deliv_none,
                         "origem2": id_cheapest,
-                        "destino2":(lat,lon)
+                        "destino2":[lat,lon]
                     }
             result.update(result2)
             return result
@@ -320,7 +352,11 @@ def bussola(order,lat=-23.6,lon=-46.6): #lat e lon
         
         deliv_none = order["quantity"].to_dict()
         deliv_none = {key:int(value) for key,value in deliv_none.items()}
-
+            
+        #Passar como parametro para cadastrarPedido
+        deliv_1 = {}
+        deliv_1[id_cheap_none] = deliv_none 
+        
         price = 0
         for drink, row in drinks_price.iterrows():
             if drink in deliv_none.keys():
@@ -333,7 +369,7 @@ def bussola(order,lat=-23.6,lon=-46.6): #lat e lon
                     "entrega1":"Amanhã",
                     "pedido1": deliv_none,
                     "origem1": id_cheap_none,
-                    "destino1":(lat,lon)
+                    "destino1":[lat,lon]
                 }
         return result
 
@@ -341,7 +377,7 @@ def bussola(order,lat=-23.6,lon=-46.6): #lat e lon
 if __name__ == "__main__":
     #order = pd.DataFrame({"drink":['Original', "Budweiser", "Guarana Antarctica",
     #"Energetico Fusion Normal", "Energetico Fusion Pessego"], "quantity":[100, 50, 300, 120, 210]})
-    order = pd.DataFrame({"drink":['Colorado Appia', "Original", "Pepsi"], "quantity":[150, 210, 800]})
+    order = pd.DataFrame({"drink":["Do Bem Pêssego", "Original"], "quantity":[10, 15]})
     order.set_index(["drink"], inplace=True)
 
     dict_pedido = bussola(order)
