@@ -3,7 +3,7 @@ $(document).ready(function(){
 
 function calcularPedido(){
     data = {}
-    lista_input = $('[type="number"]');
+    lista_input = $('[type="number"][placeholder="Qnt"]');
 
     [].forEach.call(lista_input, function(input){
         data[`${input.name}`] = input.value;
