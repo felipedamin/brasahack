@@ -5,6 +5,7 @@ from functions_database import get_stock_per_drink, get_stock_per_cluster, get_s
 import pandas as pd
 import pdb
 from calculateDistances import deliveries
+delivery = deliveries()
 
 """
 Legenda:
@@ -167,12 +168,14 @@ def mix_drinks(id_depo, order):
 
     return deliv
 
-def cadastrarPedido(deliv_1, deliv_2=None):
-
-    return deliv_1
+def cadastrarPedido(nome, lat, lon):
+    try:
+        delivery.updateDelivery("10am", "price", nome, lat, lon)
+    except:
+        delivery.addDelivery("10am", "price", nome, lat, lon)
+    return True
 
 def bussola(order,lat=-23.6,lon=-46.6): #lat e lon
-    delivery = deliveries()
     depo_close = delivery.calculateDistances(lat, lon, 3)
     depo_close.set_index(["id"], inplace=True)
 

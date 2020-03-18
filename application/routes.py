@@ -11,7 +11,7 @@ from htmlmin.main import minify
 
 
 from functions_database import get_drinks_price, get_customer_info
-from algoritmo import bussola
+from algoritmo import bussola, cadastrarPedido
 import pandas as pd
 
 
@@ -43,11 +43,18 @@ def home():
 def cadastro_order():
     if request.method == 'POST':
         # SALVAR PEDIDO NO BANCO
-        
+        try:
+            lat = float(session['lat'])
+            lon = float(session['lon'])
+        except:
+            lat = -26,6
+            lon = -46,6
+        cadastrarPedido(session['nome'], lat, lon)
+        print(request.form.to_dict())
         return jsonify({'response': 'ok'}), 200
 
     return jsonify({'response': 'nok'}), 400
-
+    
 
 @app.route('/pedido/', methods=['GET', 'POST'])
 def pedido():
@@ -76,5 +83,4 @@ def pedido():
     order.set_index(["drink"], inplace=True)
 
     dict_order = bussola(order)
-
     return jsonify(dict_order), 200
