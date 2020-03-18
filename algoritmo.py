@@ -169,7 +169,10 @@ def mix_drinks(id_depo, order):
     return deliv
 
 def cadastrarPedido(nome, lat, lon):
-    delivery.updateDelivery("11am", nome, lat, lon)
+    try:
+        delivery.updateDelivery("10am", "price", nome, lat, lon)
+    except:
+        delivery.addDelivery("10am", "price", nome, lat, lon)
     return True
 
 def bussola(order,lat=-23.6,lon=-46.6): #lat e lon

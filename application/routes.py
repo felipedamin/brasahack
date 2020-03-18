@@ -43,7 +43,13 @@ def home():
 def cadastro_order():
     if request.method == 'POST':
         # SALVAR PEDIDO NO BANCO
-        cadastrarPedido(session['nome'], session['lat'], session['lon'])
+        try:
+            lat = float(session['lat'])
+            lon = float(session['lon'])
+        except:
+            lat = -26,6
+            lon = -46,6
+        cadastrarPedido(session['nome'], lat, lon)
         print(request.form.to_dict())
         return jsonify({'response': 'ok'}), 200
 
@@ -77,5 +83,4 @@ def pedido():
     order.set_index(["drink"], inplace=True)
 
     dict_order = bussola(order)
-
     return jsonify(dict_order), 200
