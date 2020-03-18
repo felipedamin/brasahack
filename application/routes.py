@@ -43,14 +43,9 @@ def home():
 def cadastro_order():
     if request.method == 'POST':
         # SALVAR PEDIDO NO BANCO
+        cadastrarPedido(session['nome'], session['lat'], session['lon'])
         print(request.form.to_dict())
-        print('\n')
-        print('\n')
-        print('\n')
-        print('\n')
-        print(session)
         return jsonify({'response': 'ok'}), 200
-        cadastrarPedido({})
 
     return jsonify({'response': 'nok'}), 400
     
