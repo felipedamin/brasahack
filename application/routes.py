@@ -11,7 +11,7 @@ from htmlmin.main import minify
 
 
 from functions_database import get_drinks_price, get_customer_info
-from algoritmo import bussola
+from algoritmo import bussola, cadastrarPedido
 import pandas as pd
 
 
@@ -50,6 +50,7 @@ def cadastro_order():
         print('\n')
         print(session)
         return jsonify({'response': 'ok'}), 200
+        cadastrarPedido({})
 
     return jsonify({'response': 'nok'}), 400
     

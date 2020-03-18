@@ -22,31 +22,44 @@ class deliveries:
     def addDelivery(self, time, price, lat, lon, origin):
         self.delivery[time] = { 'price': price, 'latDestination': lat, 'lonDestination': lon, 'origin': origin }
         return True
+    
+    def updateDelivery(self, time, price, origin, lat, lon):
+        self.delivery[time] = [self.delivery[time], { 'price': price, 'origin': origin, 'latDestination': lat, 'lonDestination': lon }]
+        return True
 
     ## começa calculando as distancias
     def calculateDistances(self, lat, lon, n):
         degreeToRad = float(np.pi / 180.0)
+
+        # analiso a distancia de todos os cdds e depositos auxiliares.
         deltaLat = (self.cdds['lat'] - lat) * degreeToRad
         deltaLon = (self.cdds['lon'] - lon) * degreeToRad
-
 
         aux = np.sin(deltaLat/2)**2 + np.cos(lat*degreeToRad) * np.cos(self.cdds['lat'] * degreeToRad) * (np.sin(deltaLon/2))**2
         c = 2 * np.arctan2(np.sqrt(aux), np.sqrt(1 - aux))
 
         ## distance in kilometers
         self.cdds = self.cdds.assign(distance=c*6367)
+        self.cdds = self.cdds.assign(coeficiente=10)
+
+        ## TODO
+        # analiso as entregas ja agendadas buscando alternativas mais baratas.
+        print(self.delivery)
+        # motivo: economizar caminhao e mao de obra
+        # caso divide: coef=5; caso contrario, coef=10
+
         price = self.calculateFrete(n)
         return price
 
     def calculateFrete(self, n):
-        price = round(self.cdds['distance'] * 10, 2)
+        price = round(self.cdds['distance'] * self.cdds['coeficiente'], 2)
         self.cdds = self.cdds.assign(price=price)
         self.cdds.sort_values(by=['price'], inplace=True, ascending=True)
+
         # devolve a opçao mais barata
-        #return self.cdds.loc[self.cdds['price'].idxmin()]
         return self.cdds.head(n)
 
-def mainTest():
+if __name__ == '__main__':
     deliv = deliveries()
     bestDelivery = deliv.calculateDistances(-23.6, -46.6, 3)
     print(bestDelivery)
@@ -55,5 +68,3 @@ def mainTest():
     ## a opçao aceita é adicionada em "self.delivery[time]"
     #deliv.addDelivery('10am', bestDelivery['price'], -23.6, -46.6, bestDelivery['name'])
     #print(deliv.delivery)
-
-# mainTest()

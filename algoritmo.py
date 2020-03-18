@@ -169,7 +169,7 @@ def mix_drinks(id_depo, order):
     return deliv
 
 def cadastrarPedido(deliv_1, deliv_2=None):
-
+    delivery.addDelivery()
     return deliv_1
 
 def bussola(order,lat=-23.6,lon=-46.6): #lat e lon
