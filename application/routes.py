@@ -43,11 +43,16 @@ def home():
 def cadastro_order():
     if request.method == 'POST':
         # SALVAR PEDIDO NO BANCO
-        
+        print(request.form.to_dict())
+        print('\n')
+        print('\n')
+        print('\n')
+        print('\n')
+        print(session)
         return jsonify({'response': 'ok'}), 200
 
     return jsonify({'response': 'nok'}), 400
-
+    
 
 @app.route('/pedido/', methods=['GET', 'POST'])
 def pedido():
