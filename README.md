@@ -27,3 +27,7 @@ http://127.0.0.1:5000/pedido
 
 Para finalizar a aplicação basta encerrar-la no terminal
 
+## Authors
+Preparado por Bruno Hassan, Daniel da Costa, Felipe Pater, Icaro Torres e Marcelo Hiltner
+
+
