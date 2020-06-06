@@ -11,7 +11,7 @@ Click==7.0
 colorama==0.4.1
 #cx-Freeze==6.0
 DateTime==4.3
-Django==3.0.4
+Django==3.0.7
 Eel==0.10.4
 Flask==1.1.1
 Flask-Admin==1.5.3
